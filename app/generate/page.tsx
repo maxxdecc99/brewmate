@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   CoffeeInput,
   BrewMethod,
@@ -13,6 +14,7 @@ import {
   SavedRecipe,
 } from "@/types";
 import { saveToBrewLog } from "@/lib/brewLog";
+import { createClient } from "@/lib/supabase/client";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
 
@@ -119,6 +121,24 @@ export default function GeneratePage() {
   const [rating, setRating] = useState(0);
   const [userNotes, setUserNotes] = useState("");
   const [saved, setSaved] = useState(false);
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [noCredits, setNoCredits] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/auth/login?next=/generate");
+        return;
+      }
+      supabase
+        .from("profiles")
+        .select("credit_balance")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => setCreditBalance(data?.credit_balance ?? 0));
+    });
+  }, [router]);
 
   function set<K extends keyof CoffeeInput>(key: K, value: CoffeeInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));
@@ -129,6 +149,7 @@ export default function GeneratePage() {
     setLoading(true);
     setError(null);
     setRecipe(null);
+    setNoCredits(false);
 
     try {
       const res = await fetch("/api/generate-recipe", {
@@ -138,10 +159,20 @@ export default function GeneratePage() {
       });
       const data = await res.json();
 
+      if (res.status === 402 || data.error === "insufficient_credits") {
+        setNoCredits(true);
+        setLoading(false);
+        return;
+      }
+
       if (!res.ok || data.error) {
         setError(data.error ?? "Something went wrong.");
         setLoading(false);
         return;
+      }
+
+      if (data.creditsRemaining !== null) {
+        setCreditBalance(data.creditsRemaining);
       }
 
       setRecipe(data.recipe);
@@ -507,13 +538,35 @@ export default function GeneratePage() {
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="self-start bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {loading ? "Brewing…" : "Generate Recipe →"}
-        </button>
+        {noCredits && (
+          <div className="border-2 border-amber-400 bg-amber-50 p-5 flex flex-col gap-3">
+            <p className="font-black text-stone-900">You&apos;re out of credits.</p>
+            <p className="text-stone-600 text-sm">
+              Buy credits to keep generating recipes.
+            </p>
+            <Link
+              href="/account"
+              className="self-start bg-amber-500 text-white font-bold px-6 py-3 border-2 border-amber-500 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+            >
+              Buy credits →
+            </Link>
+          </div>
+        )}
+
+        <div className="flex items-center gap-4 flex-wrap">
+          <button
+            type="submit"
+            disabled={loading || noCredits}
+            className="bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? "Brewing…" : "Generate Recipe →"}
+          </button>
+          {creditBalance !== null && (
+            <span className="text-sm font-bold text-stone-400">
+              {creditBalance} {creditBalance === 1 ? "credit" : "credits"} remaining
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );

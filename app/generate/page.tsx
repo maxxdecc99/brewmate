@@ -175,6 +175,7 @@ export default function GeneratePage() {
         setCreditBalance(data.creditsRemaining);
       }
 
+      router.refresh();
       setRecipe(data.recipe);
       setView("result");
     } catch {

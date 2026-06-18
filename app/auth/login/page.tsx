@@ -14,23 +14,43 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [unverified, setUnverified] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "loading" | "sent" | "error">("idle");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setUnverified(false);
+    setResendState("idle");
 
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError("Invalid email or password.");
+      const isUnconfirmed =
+        error.message?.toLowerCase().includes("email not confirmed") ||
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (error as any).code === "email_not_confirmed";
+
+      if (isUnconfirmed) {
+        setUnverified(true);
+      } else {
+        setError("Invalid email or password.");
+      }
       setLoading(false);
       return;
     }
 
     router.push(next);
     router.refresh();
+  }
+
+  async function handleResend() {
+    setResendState("loading");
+    const supabase = createClient();
+    const { error } = await supabase.auth.resend({ type: "signup", email });
+    setResendState(error ? "error" : "sent");
   }
 
   return (
@@ -69,6 +89,33 @@ function LoginForm() {
           placeholder="••••••••"
         />
       </div>
+
+      {unverified && (
+        <div className="flex flex-col gap-2">
+          <div className="border-2 border-amber-500 bg-amber-50 px-4 py-3 text-amber-900 text-sm font-medium">
+            Please verify your email before logging in. Check your inbox for the confirmation link.
+          </div>
+          {resendState === "sent" ? (
+            <p className="text-xs text-center text-stone-500 font-medium">
+              Verification email sent — check your inbox.
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={resendState === "loading"}
+              className="text-xs font-bold text-center text-stone-500 hover:text-amber-600 underline underline-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {resendState === "loading" ? "Sending…" : "Resend verification email"}
+            </button>
+          )}
+          {resendState === "error" && (
+            <p className="text-xs text-center text-red-600 font-medium">
+              Failed to resend. Please try again.
+            </p>
+          )}
+        </div>
+      )}
 
       {error && (
         <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">

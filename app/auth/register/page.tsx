@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +25,7 @@ export default function RegisterPage() {
     }
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
       setError(error.message);
@@ -32,8 +33,41 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!data.session) {
+      setConfirmed(true);
+      return;
+    }
+
     router.push("/generate");
     router.refresh();
+  }
+
+  if (confirmed) {
+    return (
+      <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl font-black tracking-tighter">Check your email</h1>
+          <p className="text-stone-500 font-medium">
+            We sent a confirmation link to{" "}
+            <span className="font-bold text-stone-900">{email}</span>.
+          </p>
+        </div>
+
+        <div className="border-2 border-amber-500 bg-amber-50 px-4 py-4 text-amber-900 text-sm font-medium">
+          Click the link in your email to verify your account before logging in.
+        </div>
+
+        <p className="text-center text-sm text-stone-500">
+          Already verified?{" "}
+          <Link
+            href="/auth/login"
+            className="font-bold text-stone-900 hover:text-amber-600 underline underline-offset-2"
+          >
+            Log in
+          </Link>
+        </p>
+      </div>
+    );
   }
 
   return (

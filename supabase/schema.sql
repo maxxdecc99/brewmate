@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('purchase', 'used', 'bonus', 'admin_adjustment')),
+  type TEXT NOT NULL CHECK (type IN ('purchase', 'used', 'bonus', 'admin_adjustment', 'refund')),
   amount INTEGER NOT NULL,
   balance_after INTEGER NOT NULL,
   description TEXT NOT NULL,
@@ -41,11 +41,20 @@ CREATE POLICY "Users can view own transactions"
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO profiles (id, email, credit_balance)
-  VALUES (NEW.id, NEW.email, 3);
+  BEGIN
+    INSERT INTO profiles (id, email, credit_balance)
+    VALUES (NEW.id, COALESCE(NEW.email, ''), 3)
+    ON CONFLICT (id) DO NOTHING;
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
 
-  INSERT INTO transactions (user_id, type, amount, balance_after, description)
-  VALUES (NEW.id, 'bonus', 3, 3, 'Welcome bonus — 3 free credits');
+  BEGIN
+    INSERT INTO transactions (user_id, type, amount, balance_after, description)
+    VALUES (NEW.id, 'bonus', 3, 3, 'Welcome bonus — 3 free credits');
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
 
   RETURN NEW;
 END;

@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { buildPrompt } from "@/lib/prompts";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { CoffeeInput } from "@/types";
 
 const client = new Anthropic();
+
+async function logFailure(userId: string, currentBalance: number, description: string) {
+  try {
+    const svc = await createServiceClient();
+    await svc.from("transactions").insert({
+      user_id: userId,
+      type: "refund",
+      amount: 0,
+      balance_after: currentBalance,
+      description,
+    });
+  } catch (e) {
+    console.error("Failed to log generation failure:", e);
+  }
+}
 
 export async function POST(req: NextRequest) {
   // Auth check
@@ -17,14 +32,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
-  // Check credit balance before AI call
-  const { data: profile } = await supabase
+  // Fetch profile — create it if missing (trigger may have failed silently)
+  let { data: profile } = await supabase
     .from("profiles")
     .select("credit_balance")
     .eq("id", user.id)
     .single();
 
-  if (!profile || profile.credit_balance < 1) {
+  if (!profile) {
+    const service = await createServiceClient();
+    await service.from("profiles").insert({
+      id: user.id,
+      email: user.email ?? "",
+      credit_balance: 3,
+    }).select().single();
+    await service.from("transactions").insert({
+      user_id: user.id,
+      type: "bonus",
+      amount: 3,
+      balance_after: 3,
+      description: "Welcome bonus — 3 free credits",
+    });
+    profile = { credit_balance: 3 };
+  }
+
+  if (profile.credit_balance < 1) {
     return NextResponse.json({ error: "insufficient_credits" }, { status: 402 });
   }
 
@@ -37,6 +69,10 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Credit is deducted AFTER a successful generation (see deduct_credit below).
+  // If generation fails at any point before that, no credit is charged.
+  // Failures are logged to the transactions table (type: 'refund', amount: 0)
+  // so there is an audit trail of what happened and when.
   try {
     const prompt = buildPrompt(input);
     const message = await client.messages.create({
@@ -57,8 +93,13 @@ export async function POST(req: NextRequest) {
       recipe = JSON.parse(cleaned);
     } catch {
       console.error("JSON parse failed:", rawText);
+      await logFailure(
+        user.id,
+        profile.credit_balance,
+        `Generation failed (unparseable AI response) — ${input.coffeeName} / ${input.brewMethod} — credit not charged`,
+      );
       return NextResponse.json(
-        { error: "AI returned invalid JSON. Please try again." },
+        { error: "Something went wrong generating your recipe. Please try again." },
         { status: 422 }
       );
     }
@@ -73,7 +114,7 @@ export async function POST(req: NextRequest) {
       if (deductError.message.includes("insufficient_credits")) {
         return NextResponse.json({ error: "insufficient_credits" }, { status: 402 });
       }
-      // Log but return recipe — don't punish user for DB hiccup
+      // Non-fatal DB hiccup — log it but still return the recipe
       console.error("Credit deduction failed:", deductError);
     }
 
@@ -87,8 +128,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ recipe, creditsRemaining: updated?.credit_balance ?? null });
   } catch (err) {
     console.error("generate-recipe error:", err);
+    await logFailure(
+      user.id,
+      profile.credit_balance,
+      `Generation failed (API error) — ${input.coffeeName} / ${input.brewMethod} — credit not charged`,
+    );
     return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
+      { error: "Something went wrong generating your recipe. Please try again." },
       { status: 500 }
     );
   }

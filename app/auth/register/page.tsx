@@ -12,11 +12,13 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setIsDuplicate(false);
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
@@ -28,7 +30,20 @@ export default function RegisterPage() {
     const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (error) {
-      setError(error.message);
+      const msg = error.message?.toLowerCase() ?? "";
+      if (msg.includes("already registered") || msg.includes("already exists")) {
+        setIsDuplicate(true);
+      } else {
+        setError(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+
+    // Email enumeration protection: Supabase returns a fake success with no
+    // identities when the email is already taken.
+    if (data.user && data.user.identities?.length === 0) {
+      setIsDuplicate(true);
       setLoading(false);
       return;
     }
@@ -108,6 +123,26 @@ export default function RegisterPage() {
             placeholder="Min. 8 characters"
           />
         </div>
+
+        {isDuplicate && (
+          <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+            An account with this email already exists.{" "}
+            <Link
+              href="/auth/login"
+              className="font-bold underline underline-offset-2 hover:text-red-900"
+            >
+              Try logging in instead
+            </Link>
+            , or use{" "}
+            <Link
+              href="/auth/forgot-password"
+              className="font-bold underline underline-offset-2 hover:text-red-900"
+            >
+              Forgot password
+            </Link>{" "}
+            if you don&apos;t remember your password.
+          </div>
+        )}
 
         {error && (
           <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">

@@ -1,23 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
+import { createClient as createSupabaseAdmin } from "@supabase/supabase-js";
 import { buildPrompt } from "@/lib/prompts";
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { CoffeeInput } from "@/types";
+
+// Plain admin client — no cookies, no user session, always bypasses RLS
+function getAdminClient() {
+  return createSupabaseAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 const client = new Anthropic();
 
 async function logFailure(userId: string, currentBalance: number, description: string) {
   try {
-    const svc = await createServiceClient();
-    await svc.from("transactions").insert({
+    const { error } = await getAdminClient().from("transactions").insert({
       user_id: userId,
       type: "refund",
       amount: 0,
       balance_after: currentBalance,
       description,
     });
+    if (error) console.error("logFailure insert error:", error.message);
   } catch (e) {
-    console.error("Failed to log generation failure:", e);
+    console.error("logFailure threw:", e);
   }
 }
 
@@ -40,7 +49,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (!profile) {
-    const service = await createServiceClient();
+    const service = getAdminClient();
     await service.from("profiles").insert({
       id: user.id,
       email: user.email ?? "",

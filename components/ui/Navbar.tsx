@@ -20,7 +20,7 @@ export default async function Navbar() {
           BrewMate
         </Link>
 
-        <div className="flex items-center gap-4 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-6 flex-wrap justify-end">
           {user ? (
             <>
               <Link

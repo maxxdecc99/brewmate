@@ -35,6 +35,12 @@ export default async function Navbar() {
               >
                 Brew Log
               </Link>
+              <Link
+                href="/settings"
+                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
+              >
+                Settings
+              </Link>
               <Suspense
                 fallback={
                   <span className="text-xs font-bold text-stone-400 px-3 py-1 border-2 border-stone-200">

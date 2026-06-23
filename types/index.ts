@@ -72,6 +72,38 @@ export interface GeneratedRecipe {
   shotTime?: string;
 }
 
+export interface RecipeRow {
+  id: string;
+  user_id: string;
+  source: "ai" | "manual";
+  title: string | null;
+  brew_method: string | null;
+  bean: string | null;
+  recipe_text: string | null;
+  ratio: string | null;
+  grind_setting: string | null;
+  water_temp: string | null;
+  bloom: string | null;
+  brew_steps: string | null;
+  total_time: string | null;
+  input_data: CoffeeInput | null;
+  recipe_data: GeneratedRecipe | null;
+  rating: number;
+  user_notes: string;
+  created_at: string;
+}
+
+export interface ManualRecipe {
+  id: string;
+  title: string;
+  brewMethod?: string;
+  bean?: string;
+  recipe: string;
+  rating: number;
+  userNotes: string;
+  createdAt: string;
+}
+
 export interface SavedRecipe {
   id: string;
   input: CoffeeInput;

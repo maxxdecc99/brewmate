@@ -2,40 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { SavedRecipe } from "@/types";
-import { getBrewLogEntry, updateBrewLogEntry } from "@/lib/brewLog";
+import { RecipeRow } from "@/types";
+import { getRecipeById, updateRecipe } from "@/lib/recipes";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
 
 export default function SavedRecipeDetail() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const [entry, setEntry] = useState<SavedRecipe | null>(null);
+  const [entry, setEntry] = useState<RecipeRow | null>(null);
   const [rating, setRating] = useState(0);
   const [userNotes, setUserNotes] = useState("");
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const found = getBrewLogEntry(id);
-    if (!found) {
-      router.replace("/log");
-      return;
+    async function load() {
+      const row = await getRecipeById(id);
+      if (!row || row.source !== "ai") {
+        router.replace("/log");
+        return;
+      }
+      setEntry(row);
+      setRating(row.rating);
+      setUserNotes(row.user_notes);
     }
-    setEntry(found);
-    setRating(found.rating);
-    setUserNotes(found.userNotes);
+    load();
   }, [id, router]);
 
-  function handleSave() {
-    updateBrewLogEntry(id, { rating, userNotes });
+  async function handleSave() {
+    await updateRecipe(id, { rating, user_notes: userNotes });
     setSaved(true);
     setEditing(false);
   }
 
   if (!entry) return null;
 
-  const { recipe, input } = entry;
+  const recipe = entry.recipe_data!;
+  const input = entry.input_data!;
   const isEspresso = recipe.brewMethod === "Espresso";
 
   return (
@@ -52,19 +56,15 @@ export default function SavedRecipeDetail() {
           {recipe.coffeeName}
         </h1>
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-lg text-amber-600 font-bold">
-            {recipe.brewMethod}
-          </span>
+          <span className="text-lg text-amber-600 font-bold">{recipe.brewMethod}</span>
           <span className="text-stone-400">·</span>
           <span className="text-stone-500 font-medium">{input.roaster}</span>
           <span className="text-stone-400">·</span>
           <span className="text-stone-500 font-medium">{input.origin}</span>
           <span className="text-stone-400">·</span>
           <span className="text-stone-500 font-medium text-sm">
-            {new Date(entry.createdAt).toLocaleDateString("en-GB", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
+            {new Date(entry.created_at).toLocaleDateString("en-GB", {
+              day: "numeric", month: "long", year: "numeric",
             })}
           </span>
         </div>
@@ -81,11 +81,7 @@ export default function SavedRecipeDetail() {
         )}
         <RecipeCard label="Ratio" value={recipe.ratio} />
         <RecipeCard label="Grind" value={`${recipe.grindMicrons}µm`} />
-        <RecipeCard
-          label="Temperature"
-          value={`${recipe.temperatureC}°C`}
-          sub={`${recipe.temperatureF}°F`}
-        />
+        <RecipeCard label="Temperature" value={`${recipe.temperatureC}°C`} sub={`${recipe.temperatureF}°F`} />
         <RecipeCard label="Total Time" value={recipe.totalTime} />
         {isEspresso && recipe.pressure && (
           <RecipeCard label="Pressure" value={recipe.pressure} />
@@ -97,28 +93,17 @@ export default function SavedRecipeDetail() {
 
       {/* Steps */}
       <div className="flex flex-col gap-4">
-        <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
-          Recipe Steps
-        </h2>
+        <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">Recipe Steps</h2>
         <div className="flex flex-col gap-3">
           {recipe.steps.map((step, i) => (
-            <div
-              key={i}
-              className="border-2 border-stone-900 bg-white p-5 flex gap-4"
-            >
-              <span className="text-2xl font-black text-amber-500 leading-none mt-0.5">
-                {i + 1}
-              </span>
+            <div key={i} className="border-2 border-stone-900 bg-white p-5 flex gap-4">
+              <span className="text-2xl font-black text-amber-500 leading-none mt-0.5">{i + 1}</span>
               <div className="flex flex-col gap-1 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-black text-stone-900">{step.title}</span>
-                  <span className="text-xs font-bold text-stone-400 whitespace-nowrap">
-                    {step.time}
-                  </span>
+                  <span className="text-xs font-bold text-stone-400 whitespace-nowrap">{step.time}</span>
                 </div>
-                <p className="text-stone-600 text-sm leading-relaxed">
-                  {step.description}
-                </p>
+                <p className="text-stone-600 text-sm leading-relaxed">{step.description}</p>
               </div>
             </div>
           ))}
@@ -128,25 +113,19 @@ export default function SavedRecipeDetail() {
       {/* Adjustment tips */}
       {recipe.adjustmentTips.length > 0 && (
         <div className="flex flex-col gap-3">
-          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
-            Dial-In Tips
-          </h2>
+          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">Dial-In Tips</h2>
           <div className="border-2 border-stone-900 bg-white divide-y-2 divide-stone-100">
             {recipe.adjustmentTips.map((tip, i) => (
-              <p key={i} className="px-5 py-3 text-sm text-stone-700 leading-relaxed">
-                → {tip}
-              </p>
+              <p key={i} className="px-5 py-3 text-sm text-stone-700 leading-relaxed">→ {tip}</p>
             ))}
           </div>
         </div>
       )}
 
-      {/* Notes from recipe */}
+      {/* Recipe notes */}
       {recipe.notes && (
         <div className="border-2 border-stone-300 bg-stone-50 p-5">
-          <span className="text-xs font-black uppercase tracking-widest text-stone-400 block mb-1">
-            Recipe Notes
-          </span>
+          <span className="text-xs font-black uppercase tracking-widest text-stone-400 block mb-1">Recipe Notes</span>
           <p className="text-stone-700 text-sm leading-relaxed">{recipe.notes}</p>
         </div>
       )}
@@ -154,9 +133,7 @@ export default function SavedRecipeDetail() {
       {/* Rating & user notes */}
       <div className="border-t-2 border-stone-900 pt-8 flex flex-col gap-5">
         <div className="flex items-baseline justify-between">
-          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
-            Your Notes
-          </h2>
+          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">Your Notes</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
@@ -170,15 +147,11 @@ export default function SavedRecipeDetail() {
         {editing ? (
           <div className="flex flex-col gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-stone-500 block mb-1">
-                Rating
-              </span>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-500 block mb-1">Rating</span>
               <StarRating value={rating} onChange={setRating} />
             </div>
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-stone-500 block mb-1">
-                Notes
-              </span>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-500 block mb-1">Notes</span>
               <textarea
                 value={userNotes}
                 onChange={(e) => setUserNotes(e.target.value)}
@@ -194,10 +167,7 @@ export default function SavedRecipeDetail() {
               >
                 Save
               </button>
-              <button
-                onClick={() => setEditing(false)}
-                className="font-bold text-stone-500 hover:text-stone-700"
-              >
+              <button onClick={() => setEditing(false)} className="font-bold text-stone-500 hover:text-stone-700">
                 Cancel
               </button>
             </div>
@@ -206,15 +176,11 @@ export default function SavedRecipeDetail() {
           <div className="flex flex-col gap-3">
             <StarRating value={rating} readonly />
             {userNotes ? (
-              <p className="text-stone-700 italic text-sm">
-                &ldquo;{userNotes}&rdquo;
-              </p>
+              <p className="text-stone-700 italic text-sm">&ldquo;{userNotes}&rdquo;</p>
             ) : (
               <p className="text-stone-400 text-sm">No notes added yet.</p>
             )}
-            {saved && (
-              <span className="text-amber-600 font-bold text-sm">Saved ✓</span>
-            )}
+            {saved && <span className="text-amber-600 font-bold text-sm">Saved ✓</span>}
           </div>
         )}
       </div>

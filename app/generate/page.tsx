@@ -11,9 +11,8 @@ import {
   BurrType,
   UserPreference,
   GeneratedRecipe,
-  SavedRecipe,
 } from "@/types";
-import { saveToBrewLog } from "@/lib/brewLog";
+import { saveAIRecipe } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
@@ -121,6 +120,8 @@ export default function GeneratePage() {
   const [rating, setRating] = useState(0);
   const [userNotes, setUserNotes] = useState("");
   const [saved, setSaved] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
   const [noCredits, setNoCredits] = useState(false);
 
@@ -185,18 +186,18 @@ export default function GeneratePage() {
     }
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!recipe) return;
-    const entry: SavedRecipe = {
-      id: Date.now().toString(),
-      input,
-      recipe,
-      rating,
-      userNotes,
-      createdAt: new Date().toISOString(),
-    };
-    saveToBrewLog(entry);
-    setSaved(true);
+    setSaveLoading(true);
+    setSaveError(null);
+    try {
+      await saveAIRecipe(recipe, input, rating, userNotes);
+      setSaved(true);
+    } catch {
+      setSaveError("Failed to save recipe. Please try again.");
+    } finally {
+      setSaveLoading(false);
+    }
   }
 
   function handleNewRecipe() {
@@ -349,12 +350,20 @@ export default function GeneratePage() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={handleSave}
-              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-8 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
-            >
-              Save Recipe
-            </button>
+            <div className="flex flex-col gap-3">
+              {saveError && (
+                <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+                  {saveError}
+                </div>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={saveLoading}
+                className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-8 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {saveLoading ? "Saving…" : "Save Recipe"}
+              </button>
+            </div>
           )}
         </div>
       </div>

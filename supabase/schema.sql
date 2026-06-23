@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Transactions table (every credit change logged)
 CREATE TABLE IF NOT EXISTS transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID NOT NULL,
   type TEXT NOT NULL CHECK (type IN ('purchase', 'used', 'bonus', 'admin_adjustment', 'refund')),
   amount INTEGER NOT NULL,
   balance_after INTEGER NOT NULL,

@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isPasswordValid, getPasswordErrors } from "@/lib/passwordValidation";
+import PasswordChecklist from "@/components/ui/PasswordChecklist";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -20,8 +22,9 @@ export default function RegisterPage() {
     setError(null);
     setIsDuplicate(false);
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    if (!isPasswordValid(password)) {
+      const missing = getPasswordErrors(password);
+      setError("Password must include: " + missing.map(s => s.toLowerCase()).join(", ") + ".");
       setLoading(false);
       return;
     }
@@ -122,6 +125,7 @@ export default function RegisterPage() {
             className="w-full border-2 border-stone-900 bg-white px-4 py-3 font-medium focus:outline-none focus:border-amber-500 transition-colors"
             placeholder="Min. 8 characters"
           />
+          <PasswordChecklist password={password} />
         </div>
 
         {isDuplicate && (

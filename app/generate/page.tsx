@@ -16,6 +16,7 @@ import { saveAIRecipe } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
+import Spinner from "@/components/ui/Spinner";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -382,6 +383,7 @@ export default function GeneratePage() {
       </div>
 
       <form onSubmit={handleGenerate} className="flex flex-col gap-10">
+        <fieldset disabled={loading} className="contents">
         {/* Coffee info */}
         <Section title="Coffee Info">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -567,8 +569,9 @@ export default function GeneratePage() {
           <button
             type="submit"
             disabled={loading || noCredits}
-            className="bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
           >
+            {loading && <Spinner />}
             {loading ? "Brewing…" : "Generate Recipe →"}
           </button>
           {creditBalance !== null && (
@@ -577,6 +580,7 @@ export default function GeneratePage() {
             </span>
           )}
         </div>
+        </fieldset>
       </form>
     </div>
   );

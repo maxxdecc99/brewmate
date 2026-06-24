@@ -5,6 +5,7 @@ import Link from "next/link";
 import { RecipeRow } from "@/types";
 import { getRecipes, deleteRecipe } from "@/lib/recipes";
 import StarRating from "@/components/ui/StarRating";
+import Spinner from "@/components/ui/Spinner";
 
 export default function BrewLogPage() {
   const [items, setItems] = useState<RecipeRow[]>([]);
@@ -29,7 +30,10 @@ export default function BrewLogPage() {
     return (
       <div className="flex flex-col gap-8">
         <h1 className="text-5xl font-black tracking-tighter">Brew Log</h1>
-        <p className="text-stone-400 font-bold">Loading your brews…</p>
+        <div className="flex items-center gap-3 text-stone-400 font-bold">
+          <Spinner />
+          <span>Loading your brews…</span>
+        </div>
       </div>
     );
   }

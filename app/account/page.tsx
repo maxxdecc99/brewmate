@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { CREDIT_PACKAGES } from "@/lib/creditPackages";
+import Spinner from "@/components/ui/Spinner";
 
 interface Transaction {
   id: string;
@@ -35,12 +36,13 @@ function AccountContent() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [purchasing, setPurchasing] = useState<number | null>(null);
+  const [pageLoading, setPageLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) { setPageLoading(false); return; }
 
       const [{ data: prof }, { data: tx }] = await Promise.all([
         supabase.from("profiles").select("email, credit_balance, created_at").eq("id", user.id).single(),
@@ -49,6 +51,7 @@ function AccountContent() {
 
       setProfile(prof);
       setTransactions(tx ?? []);
+      setPageLoading(false);
     }
     load();
   }, []);
@@ -99,9 +102,13 @@ function AccountContent() {
             <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
               Current Balance
             </span>
-            <span className="text-5xl font-black text-stone-900">
-              {profile?.credit_balance ?? "—"}
-            </span>
+            {pageLoading ? (
+              <div className="h-12 w-16 bg-stone-100 animate-pulse rounded" />
+            ) : (
+              <span className="text-5xl font-black text-stone-900">
+                {profile?.credit_balance ?? "—"}
+              </span>
+            )}
           </div>
           <span className="text-4xl">☕</span>
         </div>
@@ -133,8 +140,9 @@ function AccountContent() {
               <button
                 onClick={() => handlePurchase(pkg.credits)}
                 disabled={purchasing !== null}
-                className="bg-stone-900 text-[#FAF7F2] font-bold py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors"
+                className="bg-stone-900 text-[#FAF7F2] font-bold py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
               >
+                {purchasing === pkg.credits && <Spinner />}
                 {purchasing === pkg.credits ? "Redirecting…" : "Buy now →"}
               </button>
             </div>
@@ -145,7 +153,12 @@ function AccountContent() {
       {/* Transaction history */}
       <section className="flex flex-col gap-4">
         <h2 className="font-black text-xl uppercase tracking-wide">Transaction History</h2>
-        {transactions.length === 0 ? (
+        {pageLoading ? (
+          <div className="flex items-center gap-3 text-stone-400 font-medium">
+            <Spinner />
+            <span>Loading transactions…</span>
+          </div>
+        ) : transactions.length === 0 ? (
           <p className="text-stone-400 font-medium">No transactions yet.</p>
         ) : (
           <div className="border-2 border-stone-900 bg-white divide-y-2 divide-stone-100">

@@ -22,23 +22,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  const { targetUserId, amount, description } = await req.json();
+  const { targetUserId, tier, expiresAt } = await req.json();
 
-  if (!targetUserId || typeof amount !== "number" || !description) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  if (!targetUserId || (tier !== "free" && tier !== "brew_plus")) {
+    return NextResponse.json({ error: "Missing/invalid fields" }, { status: 400 });
   }
 
   const service = await createServiceClient();
-  const { data, error } = await service.rpc("admin_adjust_credits", {
+  const { data, error } = await service.rpc("admin_grant_subscription", {
     target_user_id: targetUserId,
-    credit_amount: amount,
-    description_text: description,
+    new_tier: tier,
+    new_expires_at: tier === "brew_plus" ? expiresAt ?? null : null,
   });
 
   if (error) {
-    console.error("admin_adjust_credits error:", error);
-    return NextResponse.json({ error: "Failed to adjust credits" }, { status: 500 });
+    console.error("admin_grant_subscription error:", error);
+    return NextResponse.json({ error: "Failed to update subscription" }, { status: 500 });
   }
 
-  return NextResponse.json({ newBalance: data });
+  return NextResponse.json({ profile: data });
 }

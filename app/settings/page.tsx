@@ -2,13 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordValid, getPasswordErrors } from "@/lib/passwordValidation";
 import PasswordChecklist from "@/components/ui/PasswordChecklist";
+import Spinner from "@/components/ui/Spinner";
+
+interface SubscriptionProfile {
+  subscription_tier: "free" | "brew_plus";
+  subscription_expires_at: string | null;
+  is_brew_plus_active: boolean;
+  stripe_subscription_id: string | null;
+  subscription_cancel_at_period_end: boolean;
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default function SettingsPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState("");
+
+  // Subscription
+  const [subProfile, setSubProfile] = useState<SubscriptionProfile | null>(null);
+  const [subLoading, setSubLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   // Email change
   const [newEmail, setNewEmail] = useState("");
@@ -30,10 +53,37 @@ export default function SettingsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
-    createClient().auth.getUser().then(({ data: { user } }) => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
       if (user?.email) setUserEmail(user.email);
+      if (!user) { setSubLoading(false); return; }
+
+      supabase
+        .from("profiles")
+        .select(
+          "subscription_tier, subscription_expires_at, is_brew_plus_active, stripe_subscription_id, subscription_cancel_at_period_end"
+        )
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          setSubProfile(data);
+          setSubLoading(false);
+        });
     });
   }, []);
+
+  async function handleManageSubscription() {
+    setPortalLoading(true);
+    try {
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
+      const { url, error } = await res.json();
+      if (error) throw new Error(error);
+      window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      setPortalLoading(false);
+    }
+  }
 
   async function handleEmailChange(e: React.FormEvent) {
     e.preventDefault();
@@ -135,6 +185,83 @@ export default function SettingsPage() {
         <h1 className="text-5xl font-black tracking-tighter">Settings</h1>
         {userEmail && <p className="text-stone-500 font-medium">{userEmail}</p>}
       </div>
+
+      {/* Subscription */}
+      <section className="flex flex-col gap-5">
+        <h2 className="font-black text-xl uppercase tracking-wide">Subscription</h2>
+
+        {subLoading ? (
+          <div className="border-2 border-stone-900 bg-white p-6 flex items-center gap-3 text-stone-400 font-medium">
+            <Spinner />
+            <span>Loading…</span>
+          </div>
+        ) : subProfile?.is_brew_plus_active && subProfile.stripe_subscription_id ? (
+          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                Current Plan
+              </span>
+              <span className="text-2xl font-black text-amber-600">☕ Brew+ — Active</span>
+              {subProfile.subscription_expires_at && (
+                <p className="text-stone-500 font-medium mt-1">
+                  {subProfile.subscription_cancel_at_period_end ? "Expires on " : "Renews on "}
+                  {formatDate(subProfile.subscription_expires_at)}
+                </p>
+              )}
+            </div>
+            <button
+              onClick={handleManageSubscription}
+              disabled={portalLoading}
+              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+            >
+              {portalLoading && <Spinner />}
+              {portalLoading ? "Redirecting…" : "Manage subscription →"}
+            </button>
+          </div>
+        ) : subProfile?.is_brew_plus_active ? (
+          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                Current Plan
+              </span>
+              <span className="text-2xl font-black text-amber-600">
+                ☕ Brew+ — Complimentary
+                {subProfile.subscription_expires_at && (
+                  <span className="text-stone-500 font-medium text-base">
+                    {" "}(expires {formatDate(subProfile.subscription_expires_at)})
+                  </span>
+                )}
+              </span>
+              <p className="text-stone-500 font-medium mt-1">
+                Subscribe before your complimentary period ends to keep full access.
+              </p>
+            </div>
+            <Link
+              href="/pricing"
+              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+            >
+              Subscribe to keep Brew+ →
+            </Link>
+          </div>
+        ) : (
+          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                Current Plan
+              </span>
+              <span className="text-2xl font-black text-stone-900">Free plan</span>
+            </div>
+            <Link
+              href="/pricing"
+              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+            >
+              Upgrade to Brew+ →
+            </Link>
+          </div>
+        )}
+      </section>
+
+      <hr className="border-stone-200" />
 
       {/* Change Email */}
       <section className="flex flex-col gap-5">
@@ -262,7 +389,7 @@ export default function SettingsPage() {
             <p className="font-black text-stone-900">Delete Account</p>
             <p className="text-sm text-stone-600 font-medium">
               Your account, profile, and all saved recipes will be permanently deleted.
-              Any remaining credits are <span className="font-bold">forfeited and non-refundable</span>.
+              Any active Brew+ subscription will be <span className="font-bold">cancelled immediately and is non-refundable</span>.
             </p>
           </div>
 

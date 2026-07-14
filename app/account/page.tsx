@@ -2,31 +2,21 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { CREDIT_PACKAGES } from "@/lib/creditPackages";
 import Spinner from "@/components/ui/Spinner";
-
-interface Transaction {
-  id: string;
-  type: "purchase" | "used" | "bonus" | "admin_adjustment";
-  amount: number;
-  balance_after: number;
-  description: string;
-  created_at: string;
-}
 
 interface Profile {
   email: string;
-  credit_balance: number;
+  subscription_tier: "free" | "brew_plus";
+  subscription_expires_at: string | null;
+  logs_created_count: number;
+  is_brew_plus_active: boolean;
+  stripe_customer_id: string | null;
   created_at: string;
 }
 
-const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  purchase: { label: "Purchase", color: "text-green-700 bg-green-50 border-green-300" },
-  used: { label: "Used", color: "text-stone-600 bg-stone-50 border-stone-300" },
-  bonus: { label: "Bonus", color: "text-amber-700 bg-amber-50 border-amber-300" },
-  admin_adjustment: { label: "Admin", color: "text-blue-700 bg-blue-50 border-blue-300" },
-};
+const FREE_LOG_LIMIT = 10;
 
 function AccountContent() {
   const searchParams = useSearchParams();
@@ -34,9 +24,8 @@ function AccountContent() {
   const cancelled = searchParams.get("cancelled");
 
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [purchasing, setPurchasing] = useState<number | null>(null);
   const [pageLoading, setPageLoading] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -44,32 +33,30 @@ function AccountContent() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setPageLoading(false); return; }
 
-      const [{ data: prof }, { data: tx }] = await Promise.all([
-        supabase.from("profiles").select("email, credit_balance, created_at").eq("id", user.id).single(),
-        supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
-      ]);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select(
+          "email, subscription_tier, subscription_expires_at, logs_created_count, is_brew_plus_active, stripe_customer_id, created_at"
+        )
+        .eq("id", user.id)
+        .single();
 
       setProfile(prof);
-      setTransactions(tx ?? []);
       setPageLoading(false);
     }
     load();
   }, []);
 
-  async function handlePurchase(credits: number) {
-    setPurchasing(credits);
+  async function handleManageSubscription() {
+    setPortalLoading(true);
     try {
-      const res = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credits }),
-      });
+      const res = await fetch("/api/stripe/portal", { method: "POST" });
       const { url, error } = await res.json();
       if (error) throw new Error(error);
       window.location.href = url;
     } catch (err) {
       console.error(err);
-      setPurchasing(null);
+      setPortalLoading(false);
     }
   }
 
@@ -85,110 +72,71 @@ function AccountContent() {
       {/* Status banners */}
       {success && (
         <div className="border-2 border-green-400 bg-green-50 px-5 py-4 font-bold text-green-800">
-          ✓ Payment successful — credits will be added within a few seconds.
+          ✓ Payment successful — your Brew+ subscription will activate within a few seconds.
         </div>
       )}
       {cancelled && (
         <div className="border-2 border-stone-300 bg-stone-50 px-5 py-4 font-medium text-stone-600">
-          Payment cancelled. Your credits were not charged.
+          Checkout cancelled. You were not charged.
         </div>
       )}
 
-      {/* Credit balance */}
+      {/* Your Plan */}
       <section className="flex flex-col gap-4">
-        <h2 className="font-black text-xl uppercase tracking-wide">Credits</h2>
-        <div className="border-2 border-stone-900 bg-white p-6 flex items-center justify-between">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
-              Current Balance
-            </span>
-            {pageLoading ? (
-              <div className="h-12 w-16 bg-stone-100 animate-pulse rounded" />
-            ) : (
-              <span className="text-5xl font-black text-stone-900">
-                {profile?.credit_balance ?? "—"}
-              </span>
-            )}
+        <h2 className="font-black text-xl uppercase tracking-wide">Your Plan</h2>
+        {pageLoading ? (
+          <div className="border-2 border-stone-900 bg-white p-6 flex items-center gap-3 text-stone-400 font-medium">
+            <Spinner />
+            <span>Loading…</span>
           </div>
-          <span className="text-4xl">☕</span>
-        </div>
-      </section>
-
-      {/* Buy credits */}
-      <section className="flex flex-col gap-4">
-        <h2 className="font-black text-xl uppercase tracking-wide">Buy Credits</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {CREDIT_PACKAGES.map((pkg) => (
-            <div
-              key={pkg.credits}
-              className={`border-2 border-stone-900 bg-white p-5 flex flex-col gap-3 relative ${
-                pkg.popular ? "ring-2 ring-amber-400 ring-offset-1" : ""
-              }`}
-            >
-              {pkg.popular && (
-                <span className="absolute -top-3 left-4 text-xs font-black uppercase tracking-widest bg-amber-400 text-stone-900 px-2 py-0.5">
-                  Popular
+        ) : profile?.is_brew_plus_active ? (
+          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                  Current Plan
                 </span>
-              )}
-              <div className="flex flex-col gap-0.5">
-                <span className="text-2xl font-black">{pkg.credits} credits</span>
-                <span className="text-stone-500 text-sm font-medium">
-                  {(pkg.priceCents / pkg.credits / 100).toFixed(2)} € / credit
+                <span className="inline-flex items-center gap-2 text-3xl font-black text-amber-600">
+                  ☕ Brew+
                 </span>
               </div>
-              <span className="text-3xl font-black text-amber-600">{pkg.priceLabel}</span>
-              <button
-                onClick={() => handlePurchase(pkg.credits)}
-                disabled={purchasing !== null}
-                className="bg-stone-900 text-[#FAF7F2] font-bold py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
-              >
-                {purchasing === pkg.credits && <Spinner />}
-                {purchasing === pkg.credits ? "Redirecting…" : "Buy now →"}
-              </button>
+              <span className="text-sm font-medium text-stone-500">
+                {profile.subscription_expires_at
+                  ? `Active until ${new Date(profile.subscription_expires_at).toLocaleDateString("en-GB", {
+                      day: "numeric", month: "long", year: "numeric",
+                    })}`
+                  : "Active — no expiry"}
+              </span>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Transaction history */}
-      <section className="flex flex-col gap-4">
-        <h2 className="font-black text-xl uppercase tracking-wide">Transaction History</h2>
-        {pageLoading ? (
-          <div className="flex items-center gap-3 text-stone-400 font-medium">
-            <Spinner />
-            <span>Loading transactions…</span>
+            {profile.stripe_customer_id && (
+              <button
+                onClick={handleManageSubscription}
+                disabled={portalLoading}
+                className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+              >
+                {portalLoading && <Spinner />}
+                {portalLoading ? "Redirecting…" : "Manage subscription →"}
+              </button>
+            )}
           </div>
-        ) : transactions.length === 0 ? (
-          <p className="text-stone-400 font-medium">No transactions yet.</p>
         ) : (
-          <div className="border-2 border-stone-900 bg-white divide-y-2 divide-stone-100">
-            {transactions.map((tx) => {
-              const meta = TYPE_LABELS[tx.type] ?? { label: tx.type, color: "text-stone-500 bg-stone-50 border-stone-200" };
-              return (
-                <div key={tx.id} className="px-5 py-4 flex items-center justify-between gap-4">
-                  <div className="flex flex-col gap-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className={`text-xs font-black uppercase tracking-widest px-2 py-0.5 border ${meta.color}`}>
-                        {meta.label}
-                      </span>
-                      <span className="text-sm text-stone-600 truncate">{tx.description}</span>
-                    </div>
-                    <span className="text-xs text-stone-400">
-                      {new Date(tx.created_at).toLocaleDateString("en-GB", {
-                        day: "numeric", month: "short", year: "numeric",
-                        hour: "2-digit", minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <span className={`font-black text-lg ${tx.amount > 0 ? "text-green-600" : "text-stone-900"}`}>
-                      {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
-                    </span>
-                    <span className="text-xs text-stone-400">→ {tx.balance_after} left</span>
-                  </div>
-                </div>
-              );
-            })}
+          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                Current Plan
+              </span>
+              <span className="text-3xl font-black text-stone-900">Free</span>
+            </div>
+            <p className="text-stone-600 font-medium">
+              {profile?.logs_created_count ?? 0} of {FREE_LOG_LIMIT} free logs used.
+              Brew+ gives you unlimited logs and unlimited AI recipes.
+            </p>
+            <Link
+              href="/pricing"
+              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+            >
+              Upgrade to Brew+ →
+            </Link>
           </div>
         )}
       </section>

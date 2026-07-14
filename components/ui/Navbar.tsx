@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import CreditBadge from "./CreditBadge";
 import LogoutButton from "./LogoutButton";
 
 export default async function Navbar() {
@@ -41,19 +39,22 @@ export default async function Navbar() {
               >
                 Settings
               </Link>
-              <Suspense
-                fallback={
-                  <span className="text-xs font-bold text-stone-400 px-3 py-1 border-2 border-stone-200">
-                    …
-                  </span>
-                }
+              <Link
+                href="/pricing"
+                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
               >
-                <CreditBadge />
-              </Suspense>
+                Pricing
+              </Link>
               <LogoutButton />
             </>
           ) : (
             <>
+              <Link
+                href="/pricing"
+                className="font-bold text-stone-700 hover:text-stone-900 text-sm transition-colors"
+              >
+                Pricing
+              </Link>
               <Link
                 href="/auth/login"
                 className="font-bold text-stone-700 hover:text-stone-900 text-sm transition-colors"

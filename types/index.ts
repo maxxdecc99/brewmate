@@ -112,3 +112,20 @@ export interface SavedRecipe {
   userNotes: string;
   createdAt: string;
 }
+
+export type SubscriptionTier = "free" | "brew_plus";
+
+export interface Profile {
+  id: string;
+  email: string;
+  is_admin: boolean;
+  subscription_tier: SubscriptionTier;
+  subscription_expires_at: string | null;
+  logs_created_count: number;
+  is_brew_plus_active: boolean;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_cancel_at_period_end: boolean;
+  subscription_plan: "monthly" | "semiannual" | "annual" | null;
+  created_at: string;
+}

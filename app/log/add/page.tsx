@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { saveManualRecipe } from "@/lib/recipes";
+import { saveManualRecipe, isLogLimitError } from "@/lib/recipes";
+import { createClient } from "@/lib/supabase/client";
+import Spinner from "@/components/ui/Spinner";
+import UpgradePrompt from "@/components/ui/UpgradePrompt";
 
 const BREW_METHODS = [
   "V60", "Kalita", "Chemex", "AeroPress", "French Press", "Espresso", "Other",
@@ -46,6 +49,22 @@ export default function AddRecipePage() {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [canSave, setCanSave] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from("profiles")
+        .select("is_brew_plus_active, logs_created_count")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          setCanSave(!!data?.is_brew_plus_active || (data?.logs_created_count ?? 0) < 10);
+        });
+    });
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,10 +84,28 @@ export default function AddRecipePage() {
         userNotes: notes.trim() || undefined,
       });
       router.push("/log");
-    } catch {
-      setError("Failed to save recipe. Please try again.");
+    } catch (err) {
+      // isLogLimitError is the authoritative check here (race: canSave was
+      // true on load but the limit was hit meanwhile, e.g. another tab).
+      if (isLogLimitError(err)) {
+        setCanSave(false);
+      } else {
+        setError("Failed to save recipe. Please try again.");
+      }
       setLoading(false);
     }
+  }
+
+  if (canSave === null) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Spinner className="h-8 w-8 text-stone-400" />
+      </div>
+    );
+  }
+
+  if (!canSave) {
+    return <UpgradePrompt reason="log_limit" />;
   }
 
   return (
@@ -88,7 +125,7 @@ export default function AddRecipePage() {
             </span>
           </div>
           <p className="text-stone-500 font-medium">
-            Log a recipe you already know — no AI, no credits. All fields are optional.
+            Log a recipe you already know — no AI needed. All fields are optional.
           </p>
         </div>
       </div>

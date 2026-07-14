@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   CoffeeInput,
   BrewMethod,
@@ -12,11 +11,12 @@ import {
   UserPreference,
   GeneratedRecipe,
 } from "@/types";
-import { saveAIRecipe } from "@/lib/recipes";
+import { saveAIRecipe, isLogLimitError } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
+import UpgradePrompt from "@/components/ui/UpgradePrompt";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -123,8 +123,8 @@ export default function GeneratePage() {
   const [saved, setSaved] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [creditBalance, setCreditBalance] = useState<number | null>(null);
-  const [noCredits, setNoCredits] = useState(false);
+  const [saveLimitReached, setSaveLimitReached] = useState(false);
+  const [entitled, setEntitled] = useState<boolean | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -135,10 +135,10 @@ export default function GeneratePage() {
       }
       supabase
         .from("profiles")
-        .select("credit_balance")
+        .select("is_brew_plus_active")
         .eq("id", user.id)
         .single()
-        .then(({ data }) => setCreditBalance(data?.credit_balance ?? 0));
+        .then(({ data }) => setEntitled(data?.is_brew_plus_active ?? false));
     });
   }, [router]);
 
@@ -151,7 +151,6 @@ export default function GeneratePage() {
     setLoading(true);
     setError(null);
     setRecipe(null);
-    setNoCredits(false);
 
     try {
       const res = await fetch("/api/generate-recipe", {
@@ -161,8 +160,10 @@ export default function GeneratePage() {
       });
       const data = await res.json();
 
-      if (res.status === 402 || data.error === "insufficient_credits") {
-        setNoCredits(true);
+      if (res.status === 403 || data.error === "subscription_required") {
+        // Defensive: covers a subscription lapsing between page load and
+        // submit (e.g. a long-idle tab). Re-gate the page.
+        setEntitled(false);
         setLoading(false);
         return;
       }
@@ -171,10 +172,6 @@ export default function GeneratePage() {
         setError(data.error ?? "Something went wrong.");
         setLoading(false);
         return;
-      }
-
-      if (data.creditsRemaining !== null) {
-        setCreditBalance(data.creditsRemaining);
       }
 
       router.refresh();
@@ -191,11 +188,16 @@ export default function GeneratePage() {
     if (!recipe) return;
     setSaveLoading(true);
     setSaveError(null);
+    setSaveLimitReached(false);
     try {
       await saveAIRecipe(recipe, input, rating, userNotes);
       setSaved(true);
-    } catch {
-      setSaveError("Failed to save recipe. Please try again.");
+    } catch (err) {
+      if (isLogLimitError(err)) {
+        setSaveLimitReached(true);
+      } else {
+        setSaveError("Failed to save recipe. Please try again.");
+      }
     } finally {
       setSaveLoading(false);
     }
@@ -208,6 +210,18 @@ export default function GeneratePage() {
     setUserNotes("");
     setSaved(false);
     setError(null);
+  }
+
+  if (entitled === null) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Spinner className="h-8 w-8 text-stone-400" />
+      </div>
+    );
+  }
+
+  if (entitled === false) {
+    return <UpgradePrompt reason="ai_locked" />;
   }
 
   if (view === "result" && recipe) {
@@ -350,6 +364,8 @@ export default function GeneratePage() {
                 View Log →
               </button>
             </div>
+          ) : saveLimitReached ? (
+            <UpgradePrompt reason="log_limit" />
           ) : (
             <div className="flex flex-col gap-3">
               {saveError && (
@@ -550,35 +566,15 @@ export default function GeneratePage() {
           </div>
         )}
 
-        {noCredits && (
-          <div className="border-2 border-amber-400 bg-amber-50 p-5 flex flex-col gap-3">
-            <p className="font-black text-stone-900">You&apos;re out of credits.</p>
-            <p className="text-stone-600 text-sm">
-              Buy credits to keep generating recipes.
-            </p>
-            <Link
-              href="/account"
-              className="self-start bg-amber-500 text-white font-bold px-6 py-3 border-2 border-amber-500 hover:bg-amber-600 hover:border-amber-600 transition-colors"
-            >
-              Buy credits →
-            </Link>
-          </div>
-        )}
-
         <div className="flex items-center gap-4 flex-wrap">
           <button
             type="submit"
-            disabled={loading || noCredits}
+            disabled={loading}
             className="bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
           >
             {loading && <Spinner />}
             {loading ? "Brewing…" : "Generate Recipe →"}
           </button>
-          {creditBalance !== null && (
-            <span className="text-sm font-bold text-stone-400">
-              {creditBalance} {creditBalance === 1 ? "credit" : "credits"} remaining
-            </span>
-          )}
         </div>
         </fieldset>
       </form>

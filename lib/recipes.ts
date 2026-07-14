@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/client";
 import { RecipeRow, CoffeeInput, GeneratedRecipe } from "@/types";
 
+// The DB trigger enforcing the free-tier log limit raises this exception.
+// Client-side limit checks are a UX nicety; this is the authoritative
+// fallback for races (e.g. two tabs both passing the client-side check).
+export function isLogLimitError(err: unknown): boolean {
+  return err instanceof Error && err.message.includes("log_limit_reached");
+}
+
 export async function getRecipes(): Promise<RecipeRow[]> {
   const supabase = createClient();
   const { data } = await supabase

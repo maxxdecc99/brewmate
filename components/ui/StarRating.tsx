@@ -21,7 +21,7 @@ export default function StarRating({
           onClick={() => onChange?.(star)}
           className={`text-2xl transition-transform ${
             readonly ? "cursor-default" : "cursor-pointer hover:scale-110"
-          } ${star <= value ? "text-amber-500" : "text-stone-300"}`}
+          } ${star <= value ? "text-terracotta" : "text-line"}`}
         >
           ★
         </button>

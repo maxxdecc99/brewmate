@@ -17,6 +17,7 @@ import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
 import UpgradePrompt from "@/components/ui/UpgradePrompt";
+import { Label, Input, Select, Textarea } from "@/components/ui/FormField";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -68,32 +69,6 @@ const DEFAULT_INPUT: CoffeeInput = {
 
 type View = "form" | "result";
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">
-      {children}
-    </label>
-  );
-}
-
-function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full border-2 border-stone-900 bg-white px-4 py-3 text-stone-900 font-medium focus:outline-none focus:border-amber-500 transition-colors placeholder:text-stone-400"
-    />
-  );
-}
-
-function Select(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return (
-    <select
-      {...props}
-      className="w-full border-2 border-stone-900 bg-white px-4 py-3 text-stone-900 font-medium focus:outline-none focus:border-amber-500 transition-colors appearance-none"
-    />
-  );
-}
-
 function Section({
   title,
   children,
@@ -103,7 +78,7 @@ function Section({
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <h2 className="text-xs font-black uppercase tracking-widest text-amber-600 border-b-2 border-stone-200 pb-2">
+      <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta border-b border-line pb-2">
         {title}
       </h2>
       {children}
@@ -215,7 +190,7 @@ export default function GeneratePage() {
   if (entitled === null) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Spinner className="h-8 w-8 text-stone-400" />
+        <Spinner className="h-8 w-8 text-muted" />
       </div>
     );
   }
@@ -230,77 +205,78 @@ export default function GeneratePage() {
     return (
       <div className="flex flex-col gap-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 border-b-2 border-stone-900 pb-6">
+        <div className="flex flex-col gap-3 border-b border-line pb-6">
           <button
             onClick={handleNewRecipe}
-            className="text-sm font-bold text-stone-500 hover:text-stone-900 self-start transition-colors"
+            className="text-sm font-bold text-muted hover:text-ink self-start transition-colors"
           >
             ← New Recipe
           </button>
-          <h1 className="text-4xl sm:text-6xl font-black tracking-tighter leading-none">
+          <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight leading-none text-ink">
             {recipe.coffeeName}
           </h1>
-          <span className="text-lg text-amber-600 font-bold">
+          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-cream bg-olive rounded-full px-3 py-1">
             {recipe.brewMethod}
           </span>
         </div>
 
         {/* Metric cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <RecipeCard label="Dose" value={`${recipe.dose}g`} />
+          <RecipeCard label="Dose" value={`${recipe.dose}g`} tone="terracotta" />
           {isEspresso && recipe.yield ? (
-            <RecipeCard label="Yield" value={`${recipe.yield}g`} />
+            <RecipeCard label="Yield" value={`${recipe.yield}g`} tone="gold" />
           ) : (
-            <RecipeCard label="Water" value={`${recipe.waterAmount}g`} />
+            <RecipeCard label="Water" value={`${recipe.waterAmount}g`} tone="gold" />
           )}
-          <RecipeCard label="Ratio" value={recipe.ratio} />
-          <RecipeCard label="Grind" value={`${recipe.grindMicrons}µm`} />
+          <RecipeCard label="Ratio" value={recipe.ratio} tone="olive" />
+          <RecipeCard label="Grind" value={`${recipe.grindMicrons}µm`} tone="surface" />
           <RecipeCard
             label="Temperature"
             value={`${recipe.temperatureC}°C`}
             sub={`${recipe.temperatureF}°F`}
+            tone="surface"
           />
-          <RecipeCard label="Total Time" value={recipe.totalTime} />
+          <RecipeCard label="Total Time" value={recipe.totalTime} tone="surface" />
           {isEspresso && recipe.pressure && (
-            <RecipeCard label="Pressure" value={recipe.pressure} />
+            <RecipeCard label="Pressure" value={recipe.pressure} tone="surface" />
           )}
           {isEspresso && recipe.shotTime && (
-            <RecipeCard label="Shot Time" value={recipe.shotTime} />
+            <RecipeCard label="Shot Time" value={recipe.shotTime} tone="surface" />
           )}
         </div>
 
         {/* Pre-infusion (espresso) */}
         {isEspresso && recipe.preInfusion && (
-          <div className="border-2 border-amber-400 bg-amber-50 p-5">
-            <span className="text-xs font-black uppercase tracking-widest text-amber-700 block mb-1">
+          <div className="rounded-2xl bg-gold p-5">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink/70 block mb-1">
               Pre-infusion
             </span>
-            <p className="text-stone-900 font-medium">{recipe.preInfusion}</p>
+            <p className="text-ink font-medium">{recipe.preInfusion}</p>
           </div>
         )}
 
         {/* Steps */}
         <div className="flex flex-col gap-4">
-          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
+          <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
             Recipe Steps
           </h2>
           <div className="flex flex-col gap-3">
             {recipe.steps.map((step, i) => (
               <div
                 key={i}
-                className="border-2 border-stone-900 bg-white p-5 flex gap-4"
+                className="rounded-2xl border border-line bg-surface p-5 flex gap-4"
               >
-                <span className="text-2xl font-black text-amber-500 leading-none mt-0.5">
+                <span className="font-heading text-2xl font-bold text-terracotta leading-none mt-0.5">
                   {i + 1}
                 </span>
                 <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-black text-stone-900">{step.title}</span>
-                    <span className="text-xs font-bold text-stone-400 whitespace-nowrap">
+                    <span className="font-heading font-bold text-ink">{step.title}</span>
+                    <span className="text-xs font-bold text-muted whitespace-nowrap">
                       {step.time}
                     </span>
                   </div>
-                  <p className="text-stone-600 text-sm leading-relaxed">
+                  <p className="text-muted text-sm leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -312,12 +288,12 @@ export default function GeneratePage() {
         {/* Adjustment tips */}
         {recipe.adjustmentTips.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
+            <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
               Dial-In Tips
             </h2>
-            <div className="border-2 border-stone-900 bg-white divide-y-2 divide-stone-100">
+            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
               {recipe.adjustmentTips.map((tip, i) => (
-                <p key={i} className="px-5 py-3 text-sm text-stone-700 leading-relaxed">
+                <p key={i} className="px-5 py-3 text-sm text-ink/80 leading-relaxed">
                   → {tip}
                 </p>
               ))}
@@ -327,17 +303,17 @@ export default function GeneratePage() {
 
         {/* Notes */}
         {recipe.notes && (
-          <div className="border-2 border-stone-300 bg-stone-50 p-5">
-            <span className="text-xs font-black uppercase tracking-widest text-stone-400 block mb-1">
+          <div className="rounded-2xl bg-surface-soft border border-line p-5">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
               Notes
             </span>
-            <p className="text-stone-700 text-sm leading-relaxed">{recipe.notes}</p>
+            <p className="text-ink/80 text-sm leading-relaxed">{recipe.notes}</p>
           </div>
         )}
 
         {/* Save to brew log */}
-        <div className="border-t-2 border-stone-900 pt-8 flex flex-col gap-5">
-          <h2 className="font-black text-xl text-stone-900 uppercase tracking-wide">
+        <div className="border-t border-line pt-8 flex flex-col gap-5">
+          <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
             Save to Brew Log
           </h2>
           <div className="flex flex-col gap-2">
@@ -346,20 +322,19 @@ export default function GeneratePage() {
           </div>
           <div className="flex flex-col gap-2">
             <Label>Notes (optional)</Label>
-            <textarea
+            <Textarea
               value={userNotes}
               onChange={(e) => setUserNotes(e.target.value)}
               placeholder="How did it taste? What would you change?"
               rows={3}
-              className="w-full border-2 border-stone-900 bg-white px-4 py-3 text-stone-900 font-medium focus:outline-none focus:border-amber-500 transition-colors resize-none placeholder:text-stone-400"
             />
           </div>
           {saved ? (
             <div className="flex items-center gap-4">
-              <span className="font-bold text-amber-600">Saved to Brew Log ✓</span>
+              <span className="font-bold text-terracotta">Saved to Brew Log ✓</span>
               <button
                 onClick={() => router.push("/log")}
-                className="font-bold text-stone-700 underline underline-offset-2 hover:text-stone-900"
+                className="font-bold text-ink/70 underline underline-offset-2 hover:text-ink"
               >
                 View Log →
               </button>
@@ -369,14 +344,14 @@ export default function GeneratePage() {
           ) : (
             <div className="flex flex-col gap-3">
               {saveError && (
-                <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+                <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
                   {saveError}
                 </div>
               )}
               <button
                 onClick={handleSave}
                 disabled={saveLoading}
-                className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-8 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="font-heading self-start bg-ink text-cream font-bold px-8 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {saveLoading ? "Saving…" : "Save Recipe"}
               </button>
@@ -390,10 +365,10 @@ export default function GeneratePage() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-5xl font-black tracking-tighter text-stone-900">
+        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">
           Generate Recipe
         </h1>
-        <p className="text-stone-500 font-medium">
+        <p className="text-muted font-medium">
           Tell us about your coffee and we&apos;ll craft a precision recipe.
         </p>
       </div>
@@ -490,10 +465,10 @@ export default function GeneratePage() {
                   type="button"
                   key={m}
                   onClick={() => set("brewMethod", m)}
-                  className={`px-3 py-3 text-sm font-bold border-2 transition-colors ${
+                  className={`font-heading rounded-xl px-3 py-3 text-sm font-bold transition-colors ${
                     input.brewMethod === m
-                      ? "bg-stone-900 text-[#FAF7F2] border-stone-900"
-                      : "bg-white text-stone-700 border-stone-900 hover:bg-stone-100"
+                      ? "bg-ink text-cream"
+                      : "bg-surface text-ink/70 border border-line hover:bg-gold hover:text-ink"
                   }`}
                 >
                   {m}
@@ -561,7 +536,7 @@ export default function GeneratePage() {
         </Section>
 
         {error && (
-          <div className="border-2 border-red-400 bg-red-50 px-5 py-4 text-red-700 font-medium text-sm">
+          <div className="rounded-xl border border-red-300 bg-red-50 px-5 py-4 text-red-700 font-medium text-sm">
             {error}
           </div>
         )}
@@ -570,7 +545,7 @@ export default function GeneratePage() {
           <button
             type="submit"
             disabled={loading}
-            className="bg-stone-900 text-[#FAF7F2] font-black px-10 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
+            className="font-heading bg-ink text-cream font-bold px-10 py-4 text-lg rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
           >
             {loading && <Spinner />}
             {loading ? "Brewing…" : "Generate Recipe →"}

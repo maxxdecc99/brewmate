@@ -6,28 +6,28 @@ export default function Home() {
       {/* Hero */}
       <section className="flex flex-col gap-6">
         <div className="inline-block">
-          <span className="text-xs font-bold uppercase tracking-widest text-amber-600 bg-amber-100 border border-amber-300 px-3 py-1">
-            AI Coffee Recipe Assistant
+          <span className="font-heading inline-block -rotate-2 text-xs font-bold uppercase tracking-widest text-ink bg-gold rounded-full px-4 py-1.5">
+            ☕ AI Coffee Recipe Assistant
           </span>
         </div>
-        <h1 className="text-6xl sm:text-8xl font-black text-stone-900 leading-none tracking-tighter">
+        <h1 className="font-heading text-6xl sm:text-8xl font-bold text-ink leading-none tracking-tight">
           Brew<br />
-          <span className="text-amber-600">Better.</span>
+          <span className="text-terracotta">Better.</span>
         </h1>
-        <p className="text-xl text-stone-600 max-w-lg leading-relaxed">
+        <p className="text-xl text-muted max-w-lg leading-relaxed">
           Generate precise coffee recipes based on your beans, brew method, and
           gear. No guesswork — just great coffee.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <Link
             href="/generate"
-            className="inline-flex items-center justify-center bg-stone-900 text-[#FAF7F2] font-bold px-8 py-4 text-lg border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-ink text-cream font-bold px-8 py-4 text-lg rounded-xl hover:bg-terracotta transition-colors"
           >
             Generate Recipe →
           </Link>
           <Link
             href="/log"
-            className="inline-flex items-center justify-center bg-transparent text-stone-900 font-bold px-8 py-4 text-lg border-2 border-stone-900 hover:bg-stone-900 hover:text-[#FAF7F2] transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-surface text-ink font-bold px-8 py-4 text-lg rounded-xl border border-line hover:bg-gold transition-colors"
           >
             Brew Log
           </Link>
@@ -35,7 +35,7 @@ export default function Home() {
       </section>
 
       {/* Feature grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 border-t-2 border-stone-900 pt-12">
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           {
             icon: "☕",
@@ -55,11 +55,11 @@ export default function Home() {
         ].map((f) => (
           <div
             key={f.title}
-            className="border-2 border-stone-900 p-6 flex flex-col gap-3 bg-white"
+            className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-3"
           >
             <span className="text-3xl">{f.icon}</span>
-            <h3 className="font-black text-lg text-stone-900">{f.title}</h3>
-            <p className="text-stone-600 text-sm leading-relaxed">{f.desc}</p>
+            <h3 className="font-heading font-bold text-lg text-ink">{f.title}</h3>
+            <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
           </div>
         ))}
       </section>

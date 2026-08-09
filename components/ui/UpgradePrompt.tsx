@@ -18,13 +18,13 @@ export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_l
   const { title, body } = COPY[reason];
 
   return (
-    <div className="border-2 border-stone-900 bg-white p-8 flex flex-col items-center text-center gap-4 max-w-md mx-auto">
+    <div className="rounded-2xl bg-surface border border-line p-8 flex flex-col items-center text-center gap-4 max-w-md mx-auto shadow-sm">
       <span className="text-4xl">☕</span>
-      <h2 className="text-2xl font-black tracking-tight">{title}</h2>
-      <p className="text-stone-500 font-medium">{body}</p>
+      <h2 className="font-heading text-2xl font-bold tracking-tight text-ink">{title}</h2>
+      <p className="text-muted font-medium">{body}</p>
       <Link
         href="/pricing"
-        className="bg-stone-900 text-[#FAF7F2] font-bold px-8 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+        className="font-heading bg-ink text-cream font-bold px-8 py-3 rounded-xl hover:bg-terracotta transition-colors"
       >
         See Brew+ plans →
       </Link>

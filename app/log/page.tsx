@@ -29,8 +29,8 @@ export default function BrewLogPage() {
   if (loading) {
     return (
       <div className="flex flex-col gap-8">
-        <h1 className="text-5xl font-black tracking-tighter">Brew Log</h1>
-        <div className="flex items-center gap-3 text-stone-400 font-bold">
+        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew Log</h1>
+        <div className="flex items-center gap-3 text-muted font-bold">
           <Spinner />
           <span>Loading your brews…</span>
         </div>
@@ -42,28 +42,28 @@ export default function BrewLogPage() {
     return (
       <div className="flex flex-col gap-8">
         <div className="flex items-baseline justify-between flex-wrap gap-3">
-          <h1 className="text-5xl font-black tracking-tighter">Brew Log</h1>
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew Log</h1>
           <Link
             href="/log/add"
-            className="font-bold text-stone-700 border-2 border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-[#FAF7F2] transition-colors"
+            className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-ink hover:text-cream transition-colors"
           >
             + Add your recipe
           </Link>
         </div>
-        <div className="border-2 border-stone-300 bg-white p-12 text-center flex flex-col items-center gap-4">
+        <div className="rounded-2xl border border-line bg-surface p-12 text-center flex flex-col items-center gap-4">
           <span className="text-5xl">☕</span>
-          <p className="font-bold text-stone-500 text-lg">No brews logged yet.</p>
+          <p className="font-bold text-muted text-lg">No brews logged yet.</p>
           <div className="flex flex-col sm:flex-row gap-3 items-center">
             <Link
               href="/generate"
-              className="font-bold text-amber-600 hover:text-amber-700 underline underline-offset-2"
+              className="font-bold text-terracotta hover:opacity-80 underline underline-offset-2"
             >
               Generate a recipe with AI →
             </Link>
-            <span className="text-stone-300 hidden sm:block">|</span>
+            <span className="text-line hidden sm:block">|</span>
             <Link
               href="/log/add"
-              className="font-bold text-stone-600 hover:text-stone-900 underline underline-offset-2"
+              className="font-bold text-ink/70 hover:text-ink underline underline-offset-2"
             >
               Add your own recipe (free) →
             </Link>
@@ -77,12 +77,12 @@ export default function BrewLogPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-baseline justify-between flex-wrap gap-3">
         <div className="flex items-baseline gap-3">
-          <h1 className="text-5xl font-black tracking-tighter">Brew Log</h1>
-          <span className="text-stone-400 font-bold">{items.length} brews</span>
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew Log</h1>
+          <span className="text-muted font-bold">{items.length} brews</span>
         </div>
         <Link
           href="/log/add"
-          className="font-bold text-stone-700 border-2 border-stone-900 px-4 py-2 text-sm hover:bg-stone-900 hover:text-[#FAF7F2] transition-colors"
+          className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-ink hover:text-cream transition-colors"
         >
           + Add your recipe
         </Link>
@@ -95,34 +95,32 @@ export default function BrewLogPage() {
           return (
             <div
               key={item.id}
-              className={`border-2 bg-white p-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between ${
-                item.source === "ai" ? "border-stone-900" : "border-stone-400 bg-stone-50"
-              }`}
+              className="rounded-2xl border border-line bg-surface p-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
             >
               <div className="flex flex-col gap-2 flex-1">
                 <div className="flex items-baseline gap-3 flex-wrap">
                   <Link
                     href={href}
-                    className="text-xl font-black text-stone-900 hover:text-amber-600 transition-colors"
+                    className="font-heading text-xl font-bold text-ink hover:text-terracotta transition-colors"
                   >
                     {item.title || "Untitled Recipe"}
                   </Link>
                   {item.source === "ai" ? (
-                    <span className="text-xs font-black uppercase tracking-widest text-amber-700 bg-amber-50 border border-amber-300 px-2 py-0.5">
+                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink bg-gold rounded-full px-2.5 py-0.5 -rotate-2 inline-block">
                       AI Recipe
                     </span>
                   ) : (
-                    <span className="text-xs font-black uppercase tracking-widest text-stone-600 bg-stone-200 border border-stone-300 px-2 py-0.5">
+                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink/70 bg-surface-soft border border-line rounded-full px-2.5 py-0.5">
                       Your Recipe
                     </span>
                   )}
                   {item.brew_method && (
-                    <span className="text-xs font-bold uppercase tracking-widest text-stone-500 bg-white border border-stone-200 px-2 py-0.5">
+                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted bg-surface-soft border border-line rounded-full px-2.5 py-0.5">
                       {item.brew_method}
                     </span>
                   )}
                 </div>
-                <div className="flex gap-3 text-sm text-stone-500 font-medium flex-wrap">
+                <div className="flex gap-3 text-sm text-muted font-medium flex-wrap">
                   {item.source === "ai" && item.input_data && (
                     <>
                       <span>{item.input_data.roaster}</span>
@@ -145,13 +143,13 @@ export default function BrewLogPage() {
                 </div>
                 <StarRating value={item.rating} readonly />
                 {item.user_notes && (
-                  <p className="text-sm text-stone-600 italic">&ldquo;{item.user_notes}&rdquo;</p>
+                  <p className="text-sm text-ink/70 italic">&ldquo;{item.user_notes}&rdquo;</p>
                 )}
               </div>
               <div className="flex gap-3 sm:flex-col sm:items-end">
                 <Link
                   href={href}
-                  className="text-sm font-bold text-stone-700 hover:text-stone-900 border-b border-stone-300 hover:border-stone-900 transition-colors"
+                  className="text-sm font-bold text-ink/70 hover:text-ink border-b border-line hover:border-ink transition-colors"
                 >
                   View →
                 </Link>

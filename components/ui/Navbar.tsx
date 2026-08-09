@@ -9,39 +9,39 @@ export default async function Navbar() {
   } = await supabase.auth.getUser();
 
   return (
-    <nav className="border-b-2 border-stone-900 bg-[#FAF7F2]">
+    <nav className="bg-cream border-b border-line">
       <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <Link
           href="/"
-          className="text-2xl font-black tracking-tight text-stone-900 hover:text-amber-600 transition-colors shrink-0"
+          className="font-heading text-2xl font-bold tracking-tight text-ink hover:text-terracotta transition-colors shrink-0"
         >
           BrewMate
         </Link>
 
-        <div className="flex items-center gap-2 sm:gap-6 flex-wrap justify-end">
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
           {user ? (
             <>
               <Link
                 href="/generate"
-                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Generate
               </Link>
               <Link
                 href="/log"
-                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Brew Log
               </Link>
               <Link
                 href="/settings"
-                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Settings
               </Link>
               <Link
                 href="/pricing"
-                className="font-bold text-stone-700 hover:text-stone-900 border-b-2 border-transparent hover:border-amber-500 transition-all pb-0.5 text-sm sm:text-base"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
@@ -51,19 +51,19 @@ export default async function Navbar() {
             <>
               <Link
                 href="/pricing"
-                className="font-bold text-stone-700 hover:text-stone-900 text-sm transition-colors"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
               <Link
                 href="/auth/login"
-                className="font-bold text-stone-700 hover:text-stone-900 text-sm transition-colors"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Log in
               </Link>
               <Link
                 href="/auth/register"
-                className="font-bold bg-stone-900 text-[#FAF7F2] px-4 py-2 text-sm border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+                className="font-heading font-bold bg-terracotta text-surface rounded-full px-4 py-2 text-sm hover:opacity-90 transition-opacity"
               >
                 Sign up free
               </Link>

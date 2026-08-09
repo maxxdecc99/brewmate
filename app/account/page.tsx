@@ -62,45 +62,45 @@ function AccountContent() {
 
   return (
     <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-2 border-b-2 border-stone-900 pb-6">
-        <h1 className="text-5xl font-black tracking-tighter">Account</h1>
+      <div className="flex flex-col gap-2 border-b border-line pb-6">
+        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Account</h1>
         {profile && (
-          <p className="text-stone-500 font-medium">{profile.email}</p>
+          <p className="text-muted font-medium">{profile.email}</p>
         )}
       </div>
 
       {/* Status banners */}
       {success && (
-        <div className="border-2 border-green-400 bg-green-50 px-5 py-4 font-bold text-green-800">
+        <div className="rounded-xl border border-green-300 bg-green-50 px-5 py-4 font-bold text-green-800">
           ✓ Payment successful — your Brew+ subscription will activate within a few seconds.
         </div>
       )}
       {cancelled && (
-        <div className="border-2 border-stone-300 bg-stone-50 px-5 py-4 font-medium text-stone-600">
+        <div className="rounded-xl border border-line bg-surface-soft px-5 py-4 font-medium text-muted">
           Checkout cancelled. You were not charged.
         </div>
       )}
 
       {/* Your Plan */}
       <section className="flex flex-col gap-4">
-        <h2 className="font-black text-xl uppercase tracking-wide">Your Plan</h2>
+        <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-ink">Your Plan</h2>
         {pageLoading ? (
-          <div className="border-2 border-stone-900 bg-white p-6 flex items-center gap-3 text-stone-400 font-medium">
+          <div className="rounded-2xl border border-line bg-surface p-6 flex items-center gap-3 text-muted font-medium">
             <Spinner />
             <span>Loading…</span>
           </div>
         ) : profile?.is_brew_plus_active ? (
-          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+          <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-4">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+                <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                   Current Plan
                 </span>
-                <span className="inline-flex items-center gap-2 text-3xl font-black text-amber-600">
+                <span className="font-heading inline-flex items-center gap-2 text-3xl font-bold text-terracotta">
                   ☕ Brew+
                 </span>
               </div>
-              <span className="text-sm font-medium text-stone-500">
+              <span className="text-sm font-medium text-muted">
                 {profile.subscription_expires_at
                   ? `Active until ${new Date(profile.subscription_expires_at).toLocaleDateString("en-GB", {
                       day: "numeric", month: "long", year: "numeric",
@@ -112,7 +112,7 @@ function AccountContent() {
               <button
                 onClick={handleManageSubscription}
                 disabled={portalLoading}
-                className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+                className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center gap-2"
               >
                 {portalLoading && <Spinner />}
                 {portalLoading ? "Redirecting…" : "Manage subscription →"}
@@ -120,20 +120,20 @@ function AccountContent() {
             )}
           </div>
         ) : (
-          <div className="border-2 border-stone-900 bg-white p-6 flex flex-col gap-4">
+          <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-widest text-stone-400 block mb-1">
+              <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="text-3xl font-black text-stone-900">Free</span>
+              <span className="font-heading text-3xl font-bold text-ink">Free</span>
             </div>
-            <p className="text-stone-600 font-medium">
+            <p className="text-ink/70 font-medium">
               {profile?.logs_created_count ?? 0} of {FREE_LOG_LIMIT} free logs used.
               Brew+ gives you unlimited logs and unlimited AI recipes.
             </p>
             <Link
               href="/pricing"
-              className="self-start bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors"
+              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors"
             >
               Upgrade to Brew+ →
             </Link>

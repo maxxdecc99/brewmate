@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Space_Grotesk, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 
-const inter = Inter({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "700"],
+  variable: "--font-space-grotesk",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-dm-sans",
+});
 
 export const metadata: Metadata = {
   title: "BrewMate — AI Coffee Recipe Assistant",
@@ -22,7 +32,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body
-        className={`${inter.className} bg-[#FAF7F2] text-stone-900 min-h-screen`}
+        className={`${spaceGrotesk.variable} ${dmSans.variable} font-sans bg-cream text-ink min-h-screen`}
       >
         <Navbar />
         <main className="max-w-4xl mx-auto px-4 py-10">{children}</main>

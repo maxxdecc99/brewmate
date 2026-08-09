@@ -13,7 +13,7 @@ export default function PasswordChecklist({ password }: { password: string }) {
           <li
             key={req.id}
             className={`flex items-center gap-2 text-xs font-medium transition-colors ${
-              met ? "text-amber-600" : "text-stone-400"
+              met ? "text-terracotta" : "text-muted"
             }`}
           >
             <span className="w-3 shrink-0 font-black">{met ? "✓" : "·"}</span>

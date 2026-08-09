@@ -19,38 +19,38 @@ export default function LogoutButton() {
     <>
       <button
         onClick={() => setShowConfirm(true)}
-        className="font-bold text-stone-500 hover:text-stone-900 transition-colors text-sm"
+        className="font-heading font-bold text-ink/60 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
       >
         Log out
       </button>
 
       {showConfirm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 px-4"
           onClick={() => setShowConfirm(false)}
         >
           <div
-            className="bg-[#FAF7F2] border-2 border-stone-900 p-8 flex flex-col gap-6 w-full max-w-sm"
+            className="bg-cream rounded-2xl p-8 flex flex-col gap-6 w-full max-w-sm shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-black tracking-tighter text-stone-900">
+              <h2 className="font-heading text-2xl font-bold tracking-tight text-ink">
                 Log out?
               </h2>
-              <p className="text-stone-500 font-medium text-sm">
+              <p className="text-muted font-medium text-sm">
                 Are you sure you want to log out?
               </p>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={handleLogout}
-                className="bg-stone-900 text-[#FAF7F2] font-bold px-5 py-2.5 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors text-sm"
+                className="font-heading bg-ink text-cream font-bold px-5 py-2.5 rounded-xl hover:bg-terracotta transition-colors text-sm"
               >
                 Log out
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="font-bold text-stone-500 hover:text-stone-900 transition-colors text-sm px-2"
+                className="font-heading font-bold text-muted hover:text-ink transition-colors text-sm px-2"
               >
                 Cancel
               </button>

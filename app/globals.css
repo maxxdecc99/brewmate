@@ -1,16 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --font-heading: var(--font-space-grotesk), sans-serif;
+  --font-sans: var(--font-dm-sans), sans-serif;
+
+  --color-cream: oklch(0.94 0.02 75);
+  --color-surface: oklch(0.98 0.015 80);
+  --color-surface-soft: oklch(0.99 0.01 80);
+  --color-ink: oklch(0.19 0.03 50);
+  --color-terracotta: oklch(0.62 0.16 35);
+  --color-olive: oklch(0.6 0.11 135);
+  --color-gold: oklch(0.88 0.09 95);
+  --color-line: oklch(0.9 0.02 80);
+  --color-muted: oklch(0.5 0.02 60);
+  --color-muted-dark: oklch(0.75 0.02 80);
+}
+
 :root {
-  --background: #FAF7F2;
-  --foreground: #1c1917;
+  --background: var(--color-cream);
+  --foreground: var(--color-ink);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-}
-
-/* Thick border utility used throughout */
-.border-thick {
-  border: 2px solid #1c1917;
 }

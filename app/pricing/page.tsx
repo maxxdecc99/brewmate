@@ -97,22 +97,22 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="flex flex-col gap-2 text-center border-b-2 border-stone-900 pb-8">
-        <h1 className="text-5xl font-black tracking-tighter">Brew+</h1>
-        <p className="text-stone-500 font-medium">
+      <div className="flex flex-col gap-2 text-center border-b border-line pb-8">
+        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew+</h1>
+        <p className="text-muted font-medium">
           Unlimited AI recipes and unlimited logs — cancel anytime.
         </p>
       </div>
 
       {/* Already subscribed */}
       {mounted && hasRealSubscription && (
-        <div className="border-2 border-amber-400 bg-amber-50 px-5 py-4 flex items-center justify-between flex-wrap gap-3">
-          <p className="font-bold text-stone-900">
+        <div className="rounded-2xl bg-gold px-5 py-4 flex items-center justify-between flex-wrap gap-3">
+          <p className="font-bold text-ink">
             ☕ You&apos;re already on Brew+ — manage your subscription in Settings.
           </p>
           <Link
             href="/settings"
-            className="bg-stone-900 text-[#FAF7F2] font-bold px-6 py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 transition-colors whitespace-nowrap"
+            className="font-heading bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors whitespace-nowrap"
           >
             Manage subscription →
           </Link>
@@ -124,42 +124,40 @@ export default function PricingPage() {
         {SUBSCRIPTION_PLANS.map((plan) => (
           <div
             key={plan.id}
-            className={`border-2 border-stone-900 bg-white p-6 flex flex-col gap-4 relative ${
-              plan.badge ? "ring-2 ring-amber-400 ring-offset-1" : ""
-            }`}
+            className="rounded-2xl bg-surface border border-line p-6 flex flex-col gap-4 relative shadow-sm"
           >
             {plan.badge && (
-              <span className="absolute -top-3 left-4 text-xs font-black uppercase tracking-widest bg-amber-400 text-stone-900 px-2 py-0.5">
+              <span className="font-heading absolute -top-3 left-4 -rotate-3 text-xs font-bold uppercase tracking-widest bg-terracotta text-cream rounded-full px-2.5 py-0.5">
                 {plan.badge}
               </span>
             )}
             {mounted && hasRealSubscription && currentPlan === plan.id && (
-              <span className="absolute -top-3 right-4 text-xs font-black uppercase tracking-widest bg-stone-900 text-[#FAF7F2] px-2 py-0.5">
+              <span className="font-heading absolute -top-3 right-4 text-xs font-bold uppercase tracking-widest bg-ink text-cream rounded-full px-2.5 py-0.5">
                 Current Plan
               </span>
             )}
             <div className="flex flex-col gap-0.5">
-              <span className="text-lg font-black text-stone-500 uppercase tracking-wide">
+              <span className="font-heading text-lg font-bold text-muted uppercase tracking-wide">
                 {plan.label}
               </span>
-              <span className="text-4xl font-black text-stone-900">
+              <span className="font-heading text-4xl font-bold text-ink">
                 {plan.priceLabel}
-                <span className="text-base font-bold text-stone-400"> {plan.interval}</span>
+                <span className="text-base font-bold text-muted"> {plan.interval}</span>
               </span>
               {plan.billedAs && (
-                <span className="text-sm text-stone-500 font-medium">{plan.billedAs}</span>
+                <span className="text-sm text-muted font-medium">{plan.billedAs}</span>
               )}
             </div>
             {mounted && hasRealSubscription ? (
               currentPlan === plan.id ? (
-                <span className="text-center py-3 border-2 border-stone-200 text-stone-400 font-bold text-sm uppercase tracking-widest">
+                <span className="font-heading text-center py-3 rounded-xl border border-line text-muted font-bold text-sm uppercase tracking-widest">
                   ✓ Your current plan
                 </span>
               ) : (
                 <button
                   onClick={handleSwitchPlan}
                   disabled={portalLoading}
-                  className="bg-stone-900 text-[#FAF7F2] font-bold py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+                  className="font-heading bg-ink text-cream font-bold py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
                 >
                   {portalLoading && <Spinner />}
                   {portalLoading ? "Redirecting…" : "Switch plan →"}
@@ -169,7 +167,7 @@ export default function PricingPage() {
               <button
                 onClick={() => handleChoosePlan(plan.id)}
                 disabled={!mounted || checkingAuth || purchasing !== null}
-                className="bg-stone-900 text-[#FAF7F2] font-bold py-3 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+                className="font-heading bg-ink text-cream font-bold py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
               >
                 {purchasing === plan.id && <Spinner />}
                 {purchasing === plan.id ? "Redirecting…" : "Choose plan →"}
@@ -181,30 +179,30 @@ export default function PricingPage() {
 
       {/* Feature comparison */}
       <section className="flex flex-col gap-4">
-        <h2 className="font-black text-xl uppercase tracking-wide text-center">
+        <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-center text-ink">
           Free vs Brew+
         </h2>
-        <div className="border-2 border-stone-900 bg-white overflow-x-auto">
+        <div className="rounded-2xl border border-line bg-surface overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b-2 border-stone-900 bg-stone-50">
+            <thead className="border-b border-line bg-surface-soft">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-stone-500">
+                <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-widest text-muted">
                   Feature
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-stone-500">
+                <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-widest text-muted">
                   Free
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-black uppercase tracking-widest text-amber-600">
+                <th className="px-4 py-3 text-left font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
                   Brew+
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-line">
               {FEATURES.map((f) => (
                 <tr key={f.label}>
-                  <td className="px-4 py-3 font-bold">{f.label}</td>
-                  <td className="px-4 py-3 text-stone-500">{f.free}</td>
-                  <td className="px-4 py-3 font-bold text-amber-700">{f.brewPlus}</td>
+                  <td className="px-4 py-3 font-bold text-ink">{f.label}</td>
+                  <td className="px-4 py-3 text-muted">{f.free}</td>
+                  <td className="px-4 py-3 font-bold text-terracotta">{f.brewPlus}</td>
                 </tr>
               ))}
             </tbody>

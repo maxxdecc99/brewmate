@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { isPasswordValid, getPasswordErrors } from "@/lib/passwordValidation";
 import PasswordChecklist from "@/components/ui/PasswordChecklist";
+import { Label, Input } from "@/components/ui/FormField";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -46,41 +47,35 @@ export default function ResetPasswordPage() {
   return (
     <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black tracking-tighter">Set new password</h1>
-        <p className="text-stone-500 font-medium">Choose a strong password for your account.</p>
+        <h1 className="font-heading text-4xl font-bold tracking-tight text-ink">Set new password</h1>
+        <p className="text-muted font-medium">Choose a strong password for your account.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">
-            New password
-          </label>
-          <input
+          <Label>New password</Label>
+          <Input
             type="password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border-2 border-stone-900 bg-white px-4 py-3 font-medium focus:outline-none focus:border-amber-500 transition-colors"
             placeholder="Min. 8 characters"
           />
           <PasswordChecklist password={password} />
         </div>
         <div>
-          <label className="block text-xs font-bold uppercase tracking-widest text-stone-500 mb-1">
-            Confirm new password
-          </label>
-          <input
+          <Label>Confirm new password</Label>
+          <Input
             type="password"
             required
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border-2 border-stone-900 bg-white px-4 py-3 font-medium focus:outline-none focus:border-amber-500 transition-colors"
             placeholder="••••••••"
           />
         </div>
 
         {error && (
-          <div className="border-2 border-red-400 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+          <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
             {error}
           </div>
         )}
@@ -88,7 +83,7 @@ export default function ResetPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="bg-stone-900 text-[#FAF7F2] font-black py-4 border-2 border-stone-900 hover:bg-amber-600 hover:border-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="font-heading bg-ink text-cream font-bold py-4 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Updating…" : "Update password →"}
         </button>

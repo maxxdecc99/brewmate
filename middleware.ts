@@ -24,9 +24,16 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // supabase.auth.getUser() does a network round-trip to the auth server.
+  // If that hangs (DNS blip, Supabase outage), the SDK's internal retries
+  // can run long enough to hit Vercel's edge-function watchdog and 504 the
+  // whole request. Bound it so middleware always resolves quickly and
+  // falls back to "unauthenticated" — the same safe path already used
+  // when there's no session.
+  const user = await Promise.race([
+    supabase.auth.getUser().then(({ data }) => data.user),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000)),
+  ]).catch(() => null);
 
   const { pathname } = request.nextUrl;
 

@@ -213,7 +213,7 @@ export default function SettingsPage() {
             <button
               onClick={handleManageSubscription}
               disabled={portalLoading}
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
             >
               {portalLoading && <Spinner />}
               {portalLoading ? "Redirecting…" : "Manage subscription →"}
@@ -239,7 +239,7 @@ export default function SettingsPage() {
             </div>
             <Link
               href="/pricing"
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
             >
               Subscribe to keep Brew+ →
             </Link>
@@ -250,11 +250,11 @@ export default function SettingsPage() {
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="font-heading text-2xl font-bold text-ink">Free plan</span>
+              <span className="font-heading text-2xl font-bold text-espresso">Free plan</span>
             </div>
             <Link
               href="/pricing"
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
             >
               Upgrade to Brew+ →
             </Link>
@@ -269,7 +269,7 @@ export default function SettingsPage() {
         <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-ink">Change Email</h2>
 
         {emailSuccess ? (
-          <div className="rounded-xl bg-gold px-4 py-4 text-ink text-sm font-medium">
+          <div className="rounded-xl bg-gold px-4 py-4 text-espresso text-sm font-medium">
             Verification email sent to <span className="font-bold">{newEmail || "your new address"}</span>.
             Click the link in that email to confirm the change — your email won&apos;t update until you do.
           </div>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={emailLoading}
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {emailLoading ? "Sending…" : "Send verification email →"}
             </button>
@@ -356,7 +356,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={passwordLoading}
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {passwordLoading ? "Updating…" : "Update password →"}
             </button>
@@ -375,8 +375,8 @@ export default function SettingsPage() {
 
         <div className="rounded-2xl border border-red-300 bg-red-50 p-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <p className="font-heading font-bold text-ink">Delete Account</p>
-            <p className="text-sm text-ink/70 font-medium">
+            <p className="font-heading font-bold text-espresso">Delete Account</p>
+            <p className="text-sm text-espresso/70 font-medium">
               Your account, profile, and all saved recipes will be permanently deleted.
               Any active Brew+ subscription will be <span className="font-bold">cancelled immediately and is non-refundable</span>.
             </p>
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                 required
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="w-full rounded-xl border border-red-300 bg-surface px-4 py-3 font-mono font-bold focus:outline-none focus:border-red-500 transition-colors"
+                className="w-full rounded-xl border border-red-300 bg-surface text-espresso px-4 py-3 font-mono font-bold focus:outline-none focus:border-red-500 transition-colors"
                 placeholder="DELETE"
                 autoComplete="off"
               />

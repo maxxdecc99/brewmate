@@ -83,7 +83,7 @@ export default function ResetPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="font-heading bg-ink text-cream font-bold py-4 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="font-heading bg-terracotta text-white font-bold py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Updating…" : "Update password →"}
         </button>

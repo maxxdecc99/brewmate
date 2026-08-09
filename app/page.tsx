@@ -1,12 +1,14 @@
 import Link from "next/link";
+import { SteamLines, CoffeeBean } from "@/components/ui/Decor";
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-16 py-8">
       {/* Hero */}
-      <section className="flex flex-col gap-6">
+      <section className="relative flex flex-col gap-6">
+        <SteamLines className="pointer-events-none hidden sm:block absolute top-0 right-2 w-10 h-10 text-terracotta/25" />
         <div className="inline-block">
-          <span className="font-heading inline-block -rotate-2 text-xs font-bold uppercase tracking-widest text-ink bg-gold rounded-full px-4 py-1.5">
+          <span className="font-heading inline-block -rotate-2 text-xs font-bold uppercase tracking-widest text-espresso bg-gold rounded-full px-4 py-1.5">
             ☕ AI Coffee Recipe Assistant
           </span>
         </div>
@@ -21,13 +23,13 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-4 pt-2">
           <Link
             href="/generate"
-            className="font-heading inline-flex items-center justify-center bg-ink text-cream font-bold px-8 py-4 text-lg rounded-xl hover:bg-terracotta transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-terracotta text-white font-bold px-8 py-4 text-lg rounded-xl hover:opacity-90 transition-colors"
           >
             Generate Recipe →
           </Link>
           <Link
             href="/log"
-            className="font-heading inline-flex items-center justify-center bg-surface text-ink font-bold px-8 py-4 text-lg rounded-xl border border-line hover:bg-gold transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-surface text-espresso font-bold px-8 py-4 text-lg rounded-xl border border-line hover:bg-gold transition-colors"
           >
             Brew Log
           </Link>
@@ -35,7 +37,8 @@ export default function Home() {
       </section>
 
       {/* Feature grid */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <section className="relative grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <CoffeeBean className="pointer-events-none hidden sm:block absolute -top-10 left-1/2 -translate-x-1/2 w-4 h-6 text-terracotta/40 -rotate-12" />
         {[
           {
             icon: "☕",
@@ -58,7 +61,7 @@ export default function Home() {
             className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-3"
           >
             <span className="text-3xl">{f.icon}</span>
-            <h3 className="font-heading font-bold text-lg text-ink">{f.title}</h3>
+            <h3 className="font-heading font-bold text-lg text-espresso">{f.title}</h3>
             <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
           </div>
         ))}

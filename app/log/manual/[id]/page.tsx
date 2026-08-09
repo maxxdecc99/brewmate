@@ -142,7 +142,7 @@ export default function ManualRecipeDetail() {
             <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight leading-none text-ink">
               {entry.title || "Untitled Recipe"}
             </h1>
-            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-ink/70 border border-line rounded-full px-2.5 py-0.5 shrink-0">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-espresso/70 border border-line rounded-full px-2.5 py-0.5 shrink-0">
               Your Recipe
             </span>
           </div>
@@ -183,7 +183,7 @@ export default function ManualRecipeDetail() {
           {entry.bloom && (
             <div className="rounded-2xl border border-line bg-surface p-5">
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">Bloom</span>
-              <p className="font-bold text-ink">{entry.bloom}</p>
+              <p className="font-bold text-espresso">{entry.bloom}</p>
             </div>
           )}
           {entry.brew_steps && (
@@ -192,7 +192,7 @@ export default function ManualRecipeDetail() {
                 Brew Steps / Pour Schedule
               </h3>
               <div className="rounded-2xl border border-line bg-surface p-5">
-                <p className="text-ink/80 text-sm leading-relaxed whitespace-pre-wrap font-medium">
+                <p className="text-espresso/80 text-sm leading-relaxed whitespace-pre-wrap font-medium">
                   {entry.brew_steps}
                 </p>
               </div>
@@ -293,7 +293,7 @@ export default function ManualRecipeDetail() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="font-heading bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? "Saving…" : "Save changes"}
             </button>

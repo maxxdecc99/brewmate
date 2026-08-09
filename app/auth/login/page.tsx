@@ -87,7 +87,7 @@ function LoginForm() {
 
       {unverified && (
         <div className="flex flex-col gap-2">
-          <div className="rounded-xl bg-gold px-4 py-3 text-ink text-sm font-medium">
+          <div className="rounded-xl bg-gold px-4 py-3 text-espresso text-sm font-medium">
             Please verify your email before logging in. Check your inbox for the confirmation link.
           </div>
           {resendState === "sent" ? (
@@ -121,7 +121,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="font-heading bg-ink text-cream font-bold py-4 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="font-heading bg-terracotta text-white font-bold py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {loading ? "Logging in…" : "Log in →"}
       </button>

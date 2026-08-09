@@ -6,16 +6,16 @@ interface RecipeCardProps {
 }
 
 const TONE_CLASSES: Record<Required<RecipeCardProps>["tone"], string> = {
-  terracotta: "bg-terracotta text-surface",
-  olive: "bg-olive text-surface",
-  gold: "bg-gold text-ink",
-  surface: "bg-surface border border-line text-ink",
+  terracotta: "bg-terracotta text-white",
+  olive: "bg-olive text-white",
+  gold: "bg-gold text-espresso",
+  surface: "bg-surface border border-line text-espresso",
 };
 
 const LABEL_CLASSES: Record<Required<RecipeCardProps>["tone"], string> = {
-  terracotta: "text-surface/75",
-  olive: "text-surface/75",
-  gold: "text-ink/60",
+  terracotta: "text-white/75",
+  olive: "text-white/75",
+  gold: "text-espresso/60",
   surface: "text-muted",
 };
 

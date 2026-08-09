@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
+import MobileMenu from "./MobileMenu";
 
 export default async function Navbar() {
   const supabase = await createClient();
@@ -18,30 +19,32 @@ export default async function Navbar() {
           BrewMate
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
+        <MobileMenu loggedIn={!!user} />
+
+        <div className="hidden md:flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
           {user ? (
             <>
               <Link
                 href="/generate"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Generate
               </Link>
               <Link
                 href="/log"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Brew Log
               </Link>
               <Link
                 href="/settings"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Settings
               </Link>
               <Link
                 href="/pricing"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
@@ -51,19 +54,19 @@ export default async function Navbar() {
             <>
               <Link
                 href="/pricing"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
               <Link
                 href="/auth/login"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-surface rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
               >
                 Log in
               </Link>
               <Link
                 href="/auth/register"
-                className="font-heading font-bold bg-terracotta text-surface rounded-full px-4 py-2 text-sm hover:opacity-90 transition-opacity"
+                className="font-heading font-bold bg-terracotta text-white rounded-full px-4 py-2 text-sm hover:opacity-90 transition-opacity"
               >
                 Sign up free
               </Link>

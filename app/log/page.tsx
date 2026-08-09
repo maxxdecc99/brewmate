@@ -45,7 +45,7 @@ export default function BrewLogPage() {
           <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew Log</h1>
           <Link
             href="/log/add"
-            className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-ink hover:text-cream transition-colors"
+            className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-terracotta hover:text-white transition-colors"
           >
             + Add your recipe
           </Link>
@@ -63,7 +63,7 @@ export default function BrewLogPage() {
             <span className="text-line hidden sm:block">|</span>
             <Link
               href="/log/add"
-              className="font-bold text-ink/70 hover:text-ink underline underline-offset-2"
+              className="font-bold text-espresso/70 hover:text-espresso underline underline-offset-2"
             >
               Add your own recipe (free) →
             </Link>
@@ -82,7 +82,7 @@ export default function BrewLogPage() {
         </div>
         <Link
           href="/log/add"
-          className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-ink hover:text-cream transition-colors"
+          className="font-heading font-bold text-ink/80 border border-line rounded-xl px-4 py-2 text-sm hover:bg-terracotta hover:text-white transition-colors"
         >
           + Add your recipe
         </Link>
@@ -101,16 +101,16 @@ export default function BrewLogPage() {
                 <div className="flex items-baseline gap-3 flex-wrap">
                   <Link
                     href={href}
-                    className="font-heading text-xl font-bold text-ink hover:text-terracotta transition-colors"
+                    className="font-heading text-xl font-bold text-espresso hover:text-terracotta transition-colors"
                   >
                     {item.title || "Untitled Recipe"}
                   </Link>
                   {item.source === "ai" ? (
-                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink bg-gold rounded-full px-2.5 py-0.5 -rotate-2 inline-block">
+                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-espresso bg-gold rounded-full px-2.5 py-0.5 -rotate-2 inline-block">
                       AI Recipe
                     </span>
                   ) : (
-                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink/70 bg-surface-soft border border-line rounded-full px-2.5 py-0.5">
+                    <span className="font-heading text-xs font-bold uppercase tracking-widest text-espresso/70 bg-surface-soft border border-line rounded-full px-2.5 py-0.5">
                       Your Recipe
                     </span>
                   )}
@@ -143,13 +143,13 @@ export default function BrewLogPage() {
                 </div>
                 <StarRating value={item.rating} readonly />
                 {item.user_notes && (
-                  <p className="text-sm text-ink/70 italic">&ldquo;{item.user_notes}&rdquo;</p>
+                  <p className="text-sm text-espresso/70 italic">&ldquo;{item.user_notes}&rdquo;</p>
                 )}
               </div>
               <div className="flex gap-3 sm:flex-col sm:items-end">
                 <Link
                   href={href}
-                  className="text-sm font-bold text-ink/70 hover:text-ink border-b border-line hover:border-ink transition-colors"
+                  className="text-sm font-bold text-espresso/70 hover:text-espresso border-b border-line hover:border-espresso transition-colors"
                 >
                   View →
                 </Link>

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import Spinner from "@/components/ui/Spinner";
+import { CoffeeBean } from "@/components/ui/Decor";
 
 interface Profile {
   email: string;
@@ -61,11 +62,13 @@ function AccountContent() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-2 border-b border-line pb-6">
+    <div className="w-screen relative left-1/2 -translate-x-1/2 -my-10 bg-olive">
+    <div className="max-w-4xl mx-auto px-4 py-10 flex flex-col gap-10">
+      <div className="relative flex flex-col gap-2 border-b border-white/25 pb-6">
+        <CoffeeBean className="pointer-events-none hidden sm:block absolute top-0 right-2 w-4 h-6 text-surface/30 rotate-12" />
         <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Account</h1>
         {profile && (
-          <p className="text-muted font-medium">{profile.email}</p>
+          <p className="text-white/70 font-medium">{profile.email}</p>
         )}
       </div>
 
@@ -76,7 +79,7 @@ function AccountContent() {
         </div>
       )}
       {cancelled && (
-        <div className="rounded-xl border border-line bg-surface-soft px-5 py-4 font-medium text-muted">
+        <div className="rounded-xl border border-line bg-surface-soft px-5 py-4 font-medium text-espresso/70">
           Checkout cancelled. You were not charged.
         </div>
       )}
@@ -112,7 +115,7 @@ function AccountContent() {
               <button
                 onClick={handleManageSubscription}
                 disabled={portalLoading}
-                className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+                className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
               >
                 {portalLoading && <Spinner />}
                 {portalLoading ? "Redirecting…" : "Manage subscription →"}
@@ -125,21 +128,22 @@ function AccountContent() {
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="font-heading text-3xl font-bold text-ink">Free</span>
+              <span className="font-heading text-3xl font-bold text-espresso">Free</span>
             </div>
-            <p className="text-ink/70 font-medium">
+            <p className="text-espresso/70 font-medium">
               {profile?.logs_created_count ?? 0} of {FREE_LOG_LIMIT} free logs used.
               Brew+ gives you unlimited logs and unlimited AI recipes.
             </p>
             <Link
               href="/pricing"
-              className="font-heading self-start bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
             >
               Upgrade to Brew+ →
             </Link>
           </div>
         )}
       </section>
+    </div>
     </div>
   );
 }

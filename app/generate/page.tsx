@@ -18,6 +18,7 @@ import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
 import UpgradePrompt from "@/components/ui/UpgradePrompt";
 import { Label, Input, Select, Textarea } from "@/components/ui/FormField";
+import { SteamLines } from "@/components/ui/Decor";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -205,7 +206,8 @@ export default function GeneratePage() {
     return (
       <div className="flex flex-col gap-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 border-b border-line pb-6">
+        <div className="relative flex flex-col gap-3 border-b border-line pb-6">
+          <SteamLines className="pointer-events-none hidden sm:block absolute top-0 right-2 w-8 h-8 text-terracotta/25" />
           <button
             onClick={handleNewRecipe}
             className="text-sm font-bold text-muted hover:text-ink self-start transition-colors"
@@ -215,7 +217,7 @@ export default function GeneratePage() {
           <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight leading-none text-ink">
             {recipe.coffeeName}
           </h1>
-          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-cream bg-olive rounded-full px-3 py-1">
+          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-white bg-olive rounded-full px-3 py-1">
             {recipe.brewMethod}
           </span>
         </div>
@@ -248,10 +250,10 @@ export default function GeneratePage() {
         {/* Pre-infusion (espresso) */}
         {isEspresso && recipe.preInfusion && (
           <div className="rounded-2xl bg-gold p-5">
-            <span className="font-heading text-xs font-bold uppercase tracking-widest text-ink/70 block mb-1">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest text-espresso/70 block mb-1">
               Pre-infusion
             </span>
-            <p className="text-ink font-medium">{recipe.preInfusion}</p>
+            <p className="text-espresso font-medium">{recipe.preInfusion}</p>
           </div>
         )}
 
@@ -271,7 +273,7 @@ export default function GeneratePage() {
                 </span>
                 <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-heading font-bold text-ink">{step.title}</span>
+                    <span className="font-heading font-bold text-espresso">{step.title}</span>
                     <span className="text-xs font-bold text-muted whitespace-nowrap">
                       {step.time}
                     </span>
@@ -293,7 +295,7 @@ export default function GeneratePage() {
             </h2>
             <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
               {recipe.adjustmentTips.map((tip, i) => (
-                <p key={i} className="px-5 py-3 text-sm text-ink/80 leading-relaxed">
+                <p key={i} className="px-5 py-3 text-sm text-espresso/80 leading-relaxed">
                   → {tip}
                 </p>
               ))}
@@ -307,7 +309,7 @@ export default function GeneratePage() {
             <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
               Notes
             </span>
-            <p className="text-ink/80 text-sm leading-relaxed">{recipe.notes}</p>
+            <p className="text-espresso/80 text-sm leading-relaxed">{recipe.notes}</p>
           </div>
         )}
 
@@ -351,7 +353,7 @@ export default function GeneratePage() {
               <button
                 onClick={handleSave}
                 disabled={saveLoading}
-                className="font-heading self-start bg-ink text-cream font-bold px-8 py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="font-heading self-start bg-terracotta text-white font-bold px-8 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {saveLoading ? "Saving…" : "Save Recipe"}
               </button>
@@ -467,8 +469,8 @@ export default function GeneratePage() {
                   onClick={() => set("brewMethod", m)}
                   className={`font-heading rounded-xl px-3 py-3 text-sm font-bold transition-colors ${
                     input.brewMethod === m
-                      ? "bg-ink text-cream"
-                      : "bg-surface text-ink/70 border border-line hover:bg-gold hover:text-ink"
+                      ? "bg-terracotta text-white"
+                      : "bg-surface text-espresso/70 border border-line hover:bg-gold hover:text-espresso"
                   }`}
                 >
                   {m}
@@ -545,7 +547,7 @@ export default function GeneratePage() {
           <button
             type="submit"
             disabled={loading}
-            className="font-heading bg-ink text-cream font-bold px-10 py-4 text-lg rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
+            className="font-heading bg-terracotta text-white font-bold px-10 py-4 text-lg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
           >
             {loading && <Spinner />}
             {loading ? "Brewing…" : "Generate Recipe →"}

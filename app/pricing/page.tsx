@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { SUBSCRIPTION_PLANS, type PlanId } from "@/lib/subscriptionPlans";
 import Spinner from "@/components/ui/Spinner";
+import { Drop } from "@/components/ui/Decor";
 
 const FEATURES: { label: string; free: string; brewPlus: string }[] = [
   { label: "Recipe logs", free: "Up to 10 (manual only)", brewPlus: "Unlimited" },
@@ -97,7 +98,8 @@ export default function PricingPage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="flex flex-col gap-2 text-center border-b border-line pb-8">
+      <div className="relative flex flex-col gap-2 text-center border-b border-line pb-8">
+        <Drop className="pointer-events-none hidden sm:block absolute top-0 right-8 w-3 h-4 text-terracotta/30" />
         <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Brew+</h1>
         <p className="text-muted font-medium">
           Unlimited AI recipes and unlimited logs — cancel anytime.
@@ -107,12 +109,12 @@ export default function PricingPage() {
       {/* Already subscribed */}
       {mounted && hasRealSubscription && (
         <div className="rounded-2xl bg-gold px-5 py-4 flex items-center justify-between flex-wrap gap-3">
-          <p className="font-bold text-ink">
+          <p className="font-bold text-espresso">
             ☕ You&apos;re already on Brew+ — manage your subscription in Settings.
           </p>
           <Link
             href="/settings"
-            className="font-heading bg-ink text-cream font-bold px-6 py-3 rounded-xl hover:bg-terracotta transition-colors whitespace-nowrap"
+            className="font-heading bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors whitespace-nowrap"
           >
             Manage subscription →
           </Link>
@@ -127,12 +129,12 @@ export default function PricingPage() {
             className="rounded-2xl bg-surface border border-line p-6 flex flex-col gap-4 relative shadow-sm"
           >
             {plan.badge && (
-              <span className="font-heading absolute -top-3 left-4 -rotate-3 text-xs font-bold uppercase tracking-widest bg-terracotta text-cream rounded-full px-2.5 py-0.5">
+              <span className="font-heading absolute -top-3 left-4 -rotate-3 text-xs font-bold uppercase tracking-widest bg-terracotta text-white rounded-full px-2.5 py-0.5">
                 {plan.badge}
               </span>
             )}
             {mounted && hasRealSubscription && currentPlan === plan.id && (
-              <span className="font-heading absolute -top-3 right-4 text-xs font-bold uppercase tracking-widest bg-ink text-cream rounded-full px-2.5 py-0.5">
+              <span className="font-heading absolute -top-3 right-4 text-xs font-bold uppercase tracking-widest bg-terracotta text-white rounded-full px-2.5 py-0.5">
                 Current Plan
               </span>
             )}
@@ -140,7 +142,7 @@ export default function PricingPage() {
               <span className="font-heading text-lg font-bold text-muted uppercase tracking-wide">
                 {plan.label}
               </span>
-              <span className="font-heading text-4xl font-bold text-ink">
+              <span className="font-heading text-4xl font-bold text-espresso">
                 {plan.priceLabel}
                 <span className="text-base font-bold text-muted"> {plan.interval}</span>
               </span>
@@ -157,7 +159,7 @@ export default function PricingPage() {
                 <button
                   onClick={handleSwitchPlan}
                   disabled={portalLoading}
-                  className="font-heading bg-ink text-cream font-bold py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+                  className="font-heading bg-terracotta text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
                 >
                   {portalLoading && <Spinner />}
                   {portalLoading ? "Redirecting…" : "Switch plan →"}
@@ -167,7 +169,7 @@ export default function PricingPage() {
               <button
                 onClick={() => handleChoosePlan(plan.id)}
                 disabled={!mounted || checkingAuth || purchasing !== null}
-                className="font-heading bg-ink text-cream font-bold py-3 rounded-xl hover:bg-terracotta disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
+                className="font-heading bg-terracotta text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2"
               >
                 {purchasing === plan.id && <Spinner />}
                 {purchasing === plan.id ? "Redirecting…" : "Choose plan →"}
@@ -200,7 +202,7 @@ export default function PricingPage() {
             <tbody className="divide-y divide-line">
               {FEATURES.map((f) => (
                 <tr key={f.label}>
-                  <td className="px-4 py-3 font-bold text-ink">{f.label}</td>
+                  <td className="px-4 py-3 font-bold text-espresso">{f.label}</td>
                   <td className="px-4 py-3 text-muted">{f.free}</td>
                   <td className="px-4 py-3 font-bold text-terracotta">{f.brewPlus}</td>
                 </tr>

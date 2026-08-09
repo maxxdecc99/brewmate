@@ -97,7 +97,7 @@ export default function AddRecipePage() {
         <div>
           <div className="flex items-center gap-3 mb-1">
             <h1 className="font-heading text-4xl font-bold tracking-tight text-ink">Add Your Recipe</h1>
-            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-ink/70 border border-line rounded-full px-2.5 py-0.5">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-espresso/70 border border-line rounded-full px-2.5 py-0.5">
               Free
             </span>
           </div>
@@ -200,7 +200,7 @@ export default function AddRecipePage() {
           <button
             type="submit"
             disabled={loading}
-            className="font-heading bg-ink text-cream font-bold px-8 py-4 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="font-heading bg-terracotta text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Saving…" : "Save to Brew Log →"}
           </button>

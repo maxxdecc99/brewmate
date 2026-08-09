@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div className="rounded-xl bg-gold px-4 py-4 text-ink text-sm font-medium">
+        <div className="rounded-xl bg-gold px-4 py-4 text-espresso text-sm font-medium">
           Click the link in your email to set a new password. The link expires in 1 hour.
         </div>
 
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="font-heading bg-ink text-cream font-bold py-4 rounded-xl hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="font-heading bg-terracotta text-white font-bold py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Sending…" : "Send reset link →"}
         </button>

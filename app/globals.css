@@ -4,16 +4,26 @@
   --font-heading: var(--font-space-grotesk), sans-serif;
   --font-sans: var(--font-dm-sans), sans-serif;
 
-  --color-cream: oklch(0.94 0.02 75);
-  --color-surface: oklch(0.98 0.015 80);
-  --color-surface-soft: oklch(0.99 0.01 80);
-  --color-ink: oklch(0.19 0.03 50);
-  --color-terracotta: oklch(0.62 0.16 35);
-  --color-olive: oklch(0.6 0.11 135);
+  /* Page background (dark espresso) and, doubled as text color, the dark
+     text used inside light "paper" cards (--color-espresso below). */
+  --color-cream: #1a1008;
+  --color-espresso: #1a1008;
+  /* Subtle elevated panel on top of the dark page (hover states, plan
+     cards on the Pricing page) — one step lighter than the page bg. */
+  --color-espresso-soft: #2a1a0e;
+
+  /* Light "paper" cards that sit on the dark page for contrast. */
+  --color-surface: #f5f0e8;
+  --color-surface-soft: #fdfaf5;
+
+  /* Primary text color — white, for text directly on the dark page. */
+  --color-ink: #ffffff;
+
+  --color-terracotta: #c4472a;
+  --color-olive: #4a6741;
   --color-gold: oklch(0.88 0.09 95);
   --color-line: oklch(0.9 0.02 80);
-  --color-muted: oklch(0.5 0.02 60);
-  --color-muted-dark: oklch(0.75 0.02 80);
+  --color-muted: #8a7a6c;
 }
 
 :root {

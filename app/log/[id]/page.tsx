@@ -57,7 +57,7 @@ export default function SavedRecipeDetail() {
           {recipe.coffeeName}
         </h1>
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-cream bg-olive rounded-full px-3 py-1">
+          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-white bg-olive rounded-full px-3 py-1">
             {recipe.brewMethod}
           </span>
           <span className="text-line">·</span>
@@ -103,7 +103,7 @@ export default function SavedRecipeDetail() {
               <span className="font-heading text-2xl font-bold text-terracotta leading-none mt-0.5">{i + 1}</span>
               <div className="flex flex-col gap-1 flex-1">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-heading font-bold text-ink">{step.title}</span>
+                  <span className="font-heading font-bold text-espresso">{step.title}</span>
                   <span className="text-xs font-bold text-muted whitespace-nowrap">{step.time}</span>
                 </div>
                 <p className="text-muted text-sm leading-relaxed">{step.description}</p>
@@ -119,7 +119,7 @@ export default function SavedRecipeDetail() {
           <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">Dial-In Tips</h2>
           <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
             {recipe.adjustmentTips.map((tip, i) => (
-              <p key={i} className="px-5 py-3 text-sm text-ink/80 leading-relaxed">→ {tip}</p>
+              <p key={i} className="px-5 py-3 text-sm text-espresso/80 leading-relaxed">→ {tip}</p>
             ))}
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function SavedRecipeDetail() {
       {recipe.notes && (
         <div className="rounded-2xl bg-surface-soft border border-line p-5">
           <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">Recipe Notes</span>
-          <p className="text-ink/80 text-sm leading-relaxed">{recipe.notes}</p>
+          <p className="text-espresso/80 text-sm leading-relaxed">{recipe.notes}</p>
         </div>
       )}
 
@@ -165,7 +165,7 @@ export default function SavedRecipeDetail() {
             <div className="flex gap-3">
               <button
                 onClick={handleSave}
-                className="font-heading bg-ink text-cream font-bold px-6 py-2 rounded-xl hover:bg-terracotta transition-colors"
+                className="font-heading bg-terracotta text-white font-bold px-6 py-2 rounded-xl hover:opacity-90 transition-colors"
               >
                 Save
               </button>

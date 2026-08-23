@@ -25,6 +25,14 @@ function formatDate(iso: string) {
   });
 }
 
+function SectionHeader({ n, title }: { n: string; title: string }) {
+  return (
+    <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
+      {n} — {title}
+    </h2>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState("");
@@ -182,27 +190,27 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-12 py-8">
-      <div className="flex flex-col gap-2 border-b border-line pb-6">
-        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">Settings</h1>
+      <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
+        <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">Settings</h1>
         {userEmail && <p className="text-muted font-medium">{userEmail}</p>}
       </div>
 
       {/* Subscription */}
       <section className="flex flex-col gap-5">
-        <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-ink">Subscription</h2>
+        <SectionHeader n="01" title="Subscription" />
 
         {subLoading ? (
-          <div className="rounded-2xl border border-line bg-surface p-6 flex items-center gap-3 text-muted font-medium">
+          <div className="border border-line bg-surface p-6 flex items-center gap-3 text-muted font-medium">
             <Spinner />
             <span>Loading…</span>
           </div>
         ) : subProfile?.is_brew_plus_active && subProfile.stripe_subscription_id ? (
-          <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-4">
+          <div className="border border-line bg-surface p-6 flex flex-col gap-4">
             <div>
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="font-heading text-2xl font-bold text-terracotta">☕ Brew+ — Active</span>
+              <span className="font-heading text-2xl font-extrabold uppercase text-terracotta">☕ Brew+ — Active</span>
               {subProfile.subscription_expires_at && (
                 <p className="text-muted font-medium mt-1">
                   {subProfile.subscription_cancel_at_period_end ? "Expires on " : "Renews on "}
@@ -213,22 +221,22 @@ export default function SettingsPage() {
             <button
               onClick={handleManageSubscription}
               disabled={portalLoading}
-              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors inline-flex items-center gap-2"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 transition-colors inline-flex items-center gap-2"
             >
               {portalLoading && <Spinner />}
               {portalLoading ? "Redirecting…" : "Manage subscription →"}
             </button>
           </div>
         ) : subProfile?.is_brew_plus_active ? (
-          <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-4">
+          <div className="border border-line bg-surface p-6 flex flex-col gap-4">
             <div>
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="font-heading text-2xl font-bold text-terracotta">
+              <span className="font-heading text-2xl font-extrabold uppercase text-terracotta">
                 ☕ Brew+ — Complimentary
                 {subProfile.subscription_expires_at && (
-                  <span className="text-muted font-medium text-base">
+                  <span className="text-muted font-medium text-base normal-case">
                     {" "}(expires {formatDate(subProfile.subscription_expires_at)})
                   </span>
                 )}
@@ -239,22 +247,22 @@ export default function SettingsPage() {
             </div>
             <Link
               href="/pricing"
-              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] transition-colors"
             >
               Subscribe to keep Brew+ →
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-4">
+          <div className="border border-line bg-surface p-6 flex flex-col gap-4">
             <div>
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
                 Current Plan
               </span>
-              <span className="font-heading text-2xl font-bold text-espresso">Free plan</span>
+              <span className="font-heading text-2xl font-extrabold uppercase text-espresso">Free plan</span>
             </div>
             <Link
               href="/pricing"
-              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] transition-colors"
             >
               Upgrade to Brew+ →
             </Link>
@@ -266,10 +274,10 @@ export default function SettingsPage() {
 
       {/* Change Email */}
       <section className="flex flex-col gap-5">
-        <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-ink">Change Email</h2>
+        <SectionHeader n="02" title="Change Email" />
 
         {emailSuccess ? (
-          <div className="rounded-xl bg-gold px-4 py-4 text-espresso text-sm font-medium">
+          <div className="border border-line bg-surface px-4 py-4 text-espresso text-sm font-medium">
             Verification email sent to <span className="font-bold">{newEmail || "your new address"}</span>.
             Click the link in that email to confirm the change — your email won&apos;t update until you do.
           </div>
@@ -287,7 +295,7 @@ export default function SettingsPage() {
             </div>
 
             {emailError && (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+              <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
                 {emailError}
               </div>
             )}
@@ -295,7 +303,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={emailLoading}
-              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {emailLoading ? "Sending…" : "Send verification email →"}
             </button>
@@ -307,10 +315,10 @@ export default function SettingsPage() {
 
       {/* Change Password */}
       <section className="flex flex-col gap-5">
-        <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-ink">Change Password</h2>
+        <SectionHeader n="03" title="Change Password" />
 
         {passwordSuccess ? (
-          <div className="rounded-xl border border-green-300 bg-green-50 px-4 py-4 text-green-800 text-sm font-bold">
+          <div className="border-2 border-ink px-4 py-4 text-espresso text-sm font-bold uppercase tracking-wide">
             ✓ Password updated successfully.
           </div>
         ) : (
@@ -348,7 +356,7 @@ export default function SettingsPage() {
             </div>
 
             {passwordError && (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+              <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
                 {passwordError}
               </div>
             )}
@@ -356,7 +364,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={passwordLoading}
-              className="font-heading self-start bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {passwordLoading ? "Updating…" : "Update password →"}
             </button>
@@ -369,13 +377,13 @@ export default function SettingsPage() {
       {/* Danger Zone */}
       <section className="flex flex-col gap-5">
         <div className="flex flex-col gap-1">
-          <h2 className="font-heading font-bold text-xl uppercase tracking-wide text-red-600">Danger Zone</h2>
+          <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">04 — Danger Zone</h2>
           <p className="text-muted text-sm font-medium">These actions are permanent and cannot be undone.</p>
         </div>
 
-        <div className="rounded-2xl border border-red-300 bg-red-50 p-6 flex flex-col gap-5">
+        <div className="border-2 border-terracotta p-6 flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <p className="font-heading font-bold text-espresso">Delete Account</p>
+            <p className="font-heading font-extrabold uppercase text-espresso">Delete Account</p>
             <p className="text-sm text-espresso/70 font-medium">
               Your account, profile, and all saved recipes will be permanently deleted.
               Any active Brew+ subscription will be <span className="font-bold">cancelled immediately and is non-refundable</span>.
@@ -390,14 +398,14 @@ export default function SettingsPage() {
                 required
                 value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="w-full rounded-xl border border-red-300 bg-surface text-espresso px-4 py-3 font-mono font-bold focus:outline-none focus:border-red-500 transition-colors"
+                className="w-full border-0 border-b-2 border-terracotta bg-transparent text-espresso px-0 py-2 font-mono font-bold focus:outline-none transition-colors"
                 placeholder="DELETE"
                 autoComplete="off"
               />
             </div>
 
             {deleteError && (
-              <div className="rounded-xl border border-red-400 bg-surface px-4 py-3 text-red-700 text-sm font-medium">
+              <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
                 {deleteError}
               </div>
             )}
@@ -405,7 +413,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={deleteLoading || deleteConfirm !== "DELETE"}
-              className="font-heading self-start bg-red-600 text-white font-bold px-6 py-3 rounded-xl hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               {deleteLoading ? "Deleting…" : "Delete my account permanently"}
             </button>

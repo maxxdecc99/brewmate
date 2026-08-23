@@ -10,11 +10,11 @@ export default async function Navbar() {
   } = await supabase.auth.getUser();
 
   return (
-    <nav className="bg-cream border-b border-line">
+    <nav className="bg-cream border-b-2 border-ink">
       <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
         <Link
           href="/"
-          className="font-heading text-2xl font-bold tracking-tight text-ink hover:text-terracotta transition-colors shrink-0"
+          className="font-heading text-xl font-extrabold uppercase tracking-tight text-ink hover:text-terracotta transition-colors shrink-0"
         >
           BrewMate
         </Link>
@@ -26,25 +26,25 @@ export default async function Navbar() {
             <>
               <Link
                 href="/generate"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Generate
               </Link>
               <Link
                 href="/log"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Brew Log
               </Link>
               <Link
                 href="/settings"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Settings
               </Link>
               <Link
                 href="/pricing"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
@@ -54,19 +54,19 @@ export default async function Navbar() {
             <>
               <Link
                 href="/pricing"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Pricing
               </Link>
               <Link
                 href="/auth/login"
-                className="font-heading font-bold text-ink/80 hover:text-ink hover:bg-espresso-soft rounded-full px-3 py-2 transition-colors text-sm"
+                className="font-heading font-bold uppercase tracking-wide text-ink/70 hover:text-ink hover:bg-ink/5 px-3 py-2 transition-colors text-sm"
               >
                 Log in
               </Link>
               <Link
                 href="/auth/register"
-                className="font-heading font-bold bg-terracotta text-white rounded-full px-4 py-2 text-sm hover:opacity-90 transition-opacity"
+                className="font-heading font-bold uppercase tracking-wide bg-terracotta text-white px-4 py-2 text-sm hover:bg-[#dd2b0f] transition-colors"
               >
                 Sign up free
               </Link>

@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: var(--font-space-grotesk), sans-serif;
-  --font-sans: var(--font-dm-sans), sans-serif;
+  --font-heading: var(--font-archivo), sans-serif;
+  --font-sans: var(--font-archivo), sans-serif;
 
-  /* Page background (dark espresso) and, doubled as text color, the dark
-     text used inside light "paper" cards (--color-espresso below). */
-  --color-cream: #1a1008;
-  --color-espresso: #1a1008;
-  /* Subtle elevated panel on top of the dark page (hover states, plan
-     cards on the Pricing page) — one step lighter than the page bg. */
-  --color-espresso-soft: #2a1a0e;
+  /* Page background — bone/off-white, with a slightly darker surface tone
+     for cards and a lighter one for nested "paper" panels. */
+  --color-cream: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-surface-soft: #f8f4f4;
 
-  /* Light "paper" cards that sit on the dark page for contrast. */
-  --color-surface: #f5f0e8;
-  --color-surface-soft: #fdfaf5;
+  /* Primary text color — dark ink, for text on the light page. */
+  --color-espresso: #201e1d;
+  --color-ink: #201e1d;
 
-  /* Primary text color — white, for text directly on the dark page. */
-  --color-ink: #ffffff;
+  --color-terracotta: #ec3013;
+  --color-line: rgba(32, 30, 29, 0.3);
+  --color-muted: #7d7979;
 
-  --color-terracotta: #c4472a;
-  --color-olive: #4a6741;
-  --color-gold: oklch(0.88 0.09 95);
-  --color-line: oklch(0.9 0.02 80);
-  --color-muted: #8a7a6c;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-full: 0px;
 }
 
 :root {

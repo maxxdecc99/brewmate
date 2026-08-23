@@ -1,71 +1,100 @@
 import Link from "next/link";
-import { SteamLines, CoffeeBean } from "@/components/ui/Decor";
+
+const FEATURES = [
+  {
+    n: "01",
+    title: "Any brew method",
+    desc: "V60, Kalita, Chemex, AeroPress, French Press, Espresso — each with its own recipe logic.",
+  },
+  {
+    n: "02",
+    title: "Precision recipes",
+    desc: "Grind in microns, exact temperature, pour-by-pour timing and dial-in corrections.",
+  },
+  {
+    n: "03",
+    title: "A brew log that learns",
+    desc: "Rate every cup, keep the notes, and see what actually worked.",
+  },
+];
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-16 py-8">
+    <div className="flex flex-col gap-16 -mx-4 sm:mx-0">
       {/* Hero */}
-      <section className="relative flex flex-col gap-6">
-        <SteamLines className="pointer-events-none hidden sm:block absolute top-0 right-2 w-10 h-10 text-terracotta/25" />
-        <div className="inline-block">
-          <span className="font-heading inline-block -rotate-2 text-xs font-bold uppercase tracking-widest text-espresso bg-gold rounded-full px-4 py-1.5">
-            ☕ AI Coffee Recipe Assistant
-          </span>
-        </div>
-        <h1 className="font-heading text-6xl sm:text-8xl font-bold text-ink leading-none tracking-tight">
+      <section className="flex flex-col gap-6 px-4 sm:px-0">
+        <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
+          /// AI Coffee Recipe System · Est. 2026
+        </span>
+        <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-ink leading-[0.86] tracking-tight uppercase">
           Brew<br />
           <span className="text-terracotta">Better.</span>
         </h1>
-        <p className="text-xl text-muted max-w-lg leading-relaxed">
-          Generate precise coffee recipes based on your beans, brew method, and
-          gear. No guesswork — just great coffee.
+        <p className="text-lg text-muted max-w-lg leading-relaxed">
+          Your beans, your gear, your palate — one precise recipe. No
+          guesswork, no folklore.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <Link
             href="/generate"
-            className="font-heading inline-flex items-center justify-center bg-terracotta text-white font-bold px-8 py-4 text-lg rounded-xl hover:opacity-90 transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-4 text-base hover:bg-[#dd2b0f] transition-colors"
           >
-            Generate Recipe →
+            Generate a recipe →
           </Link>
           <Link
             href="/log"
-            className="font-heading inline-flex items-center justify-center bg-surface text-espresso font-bold px-8 py-4 text-lg rounded-xl border border-line hover:bg-gold transition-colors"
+            className="font-heading inline-flex items-center justify-center bg-transparent text-ink font-bold uppercase tracking-wide px-8 py-4 text-base border-2 border-ink hover:bg-ink/5 transition-colors"
           >
-            Brew Log
+            Open brew log
           </Link>
         </div>
       </section>
 
-      {/* Feature grid */}
-      <section className="relative grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <CoffeeBean className="pointer-events-none hidden sm:block absolute -top-10 left-1/2 -translate-x-1/2 w-4 h-6 text-terracotta/40 -rotate-12" />
-        {[
-          {
-            icon: "☕",
-            title: "Any Brew Method",
-            desc: "V60, Chemex, AeroPress, French Press, Espresso — all covered.",
-          },
-          {
-            icon: "⚗️",
-            title: "Precision Recipes",
-            desc: "Grind size in microns, exact temps, step-by-step pour guides.",
-          },
-          {
-            icon: "📓",
-            title: "Brew Log",
-            desc: "Save recipes, rate them, and build your personal coffee journal.",
-          },
-        ].map((f) => (
+      {/* Direct-flash band */}
+      <div className="h-40 sm:h-56 border-y-2 border-ink bg-[repeating-linear-gradient(135deg,var(--color-surface)_0_9px,var(--color-surface-soft)_9px_18px)] flex items-end px-4 sm:px-0 pb-4">
+        <span className="font-mono text-[10px] font-medium uppercase tracking-widest bg-ink text-cream px-2 py-1">
+          [ Direct flash · pour shot ]
+        </span>
+      </div>
+
+      {/* Index — what it does */}
+      <section className="flex flex-col gap-2 px-4 sm:px-0">
+        <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted">
+          Index — what it does
+        </span>
+        <div className="h-0.5 bg-ink" />
+        {FEATURES.map((f) => (
           <div
-            key={f.title}
-            className="rounded-2xl border border-line bg-surface p-6 flex flex-col gap-3"
+            key={f.n}
+            className="flex gap-4 py-5 border-b border-line"
           >
-            <span className="text-3xl">{f.icon}</span>
-            <h3 className="font-heading font-bold text-lg text-espresso">{f.title}</h3>
-            <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
+            <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta pt-1">
+              {f.n}
+            </span>
+            <div className="flex flex-col gap-1">
+              <h3 className="font-heading font-extrabold uppercase text-lg text-ink">{f.title}</h3>
+              <p className="text-muted text-sm leading-relaxed">{f.desc}</p>
+            </div>
           </div>
         ))}
       </section>
+
+      {/* CTA band */}
+      <section className="bg-terracotta text-white px-4 sm:px-10 py-10 flex flex-col gap-5">
+        <p className="font-heading text-3xl sm:text-4xl font-extrabold uppercase leading-[0.95] tracking-tight max-w-2xl">
+          Coffee is a variable problem. We solve it per cup.
+        </p>
+        <Link
+          href="/pricing"
+          className="font-heading self-start bg-cream text-terracotta font-bold uppercase tracking-wide px-6 py-3 text-sm hover:bg-white transition-colors"
+        >
+          See Brew+ plans →
+        </Link>
+      </section>
+
+      <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-muted px-4 sm:px-0 -mt-8">
+        BrewMate /// 2026 /// V60 · Kalita · Chemex · AeroPress · French Press · Espresso
+      </p>
     </div>
   );
 }

@@ -122,27 +122,27 @@ export default function ManualRecipeDetail() {
   const hasStructuredContent =
     metricCards.length > 0 || entry.bloom || entry.brew_steps;
 
-  const CARD_TONES: ("terracotta" | "gold" | "olive" | "surface")[] = [
-    "terracotta", "gold", "olive", "surface",
+  const CARD_TONES: ("terracotta" | "ink" | "surface")[] = [
+    "terracotta", "ink", "surface", "surface",
   ];
 
   // --- Render ---
   return (
     <div className="flex flex-col gap-10">
       {/* Header */}
-      <div className="flex flex-col gap-3 border-b border-line pb-6">
+      <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
         <button
           onClick={() => router.push("/log")}
-          className="text-sm font-bold text-muted hover:text-ink self-start transition-colors"
+          className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
         >
           ← Brew Log
         </button>
         <div className="flex flex-col gap-2">
           <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight leading-none text-ink">
+            <h1 className="font-heading text-4xl sm:text-6xl font-extrabold uppercase tracking-tight leading-[0.94] text-ink">
               {entry.title || "Untitled Recipe"}
             </h1>
-            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-espresso/70 border border-line rounded-full px-2.5 py-0.5 shrink-0">
+            <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-espresso/70 border border-line px-2 py-0.5 shrink-0">
               Your Recipe
             </span>
           </div>
@@ -172,16 +172,16 @@ export default function ManualRecipeDetail() {
       {/* Structured recipe content (read view) */}
       {!editing && hasStructuredContent && (
         <div className="flex flex-col gap-6">
-          <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">Recipe</h2>
+          <h2 className="font-heading font-extrabold text-xl text-terracotta uppercase tracking-wide">Recipe</h2>
           {metricCards.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-0.5 bg-line">
               {metricCards.map((c, i) => (
                 <RecipeCard key={c.label} label={c.label} value={c.value} tone={CARD_TONES[i % CARD_TONES.length]} />
               ))}
             </div>
           )}
           {entry.bloom && (
-            <div className="rounded-2xl border border-line bg-surface p-5">
+            <div className="bg-surface border-l-2 border-terracotta p-5">
               <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">Bloom</span>
               <p className="font-bold text-espresso">{entry.bloom}</p>
             </div>
@@ -191,7 +191,7 @@ export default function ManualRecipeDetail() {
               <h3 className="font-heading font-bold text-sm uppercase tracking-widest text-muted">
                 Brew Steps / Pour Schedule
               </h3>
-              <div className="rounded-2xl border border-line bg-surface p-5">
+              <div className="bg-surface p-5">
                 <p className="text-espresso/80 text-sm leading-relaxed whitespace-pre-wrap font-medium">
                   {entry.brew_steps}
                 </p>
@@ -293,7 +293,7 @@ export default function ManualRecipeDetail() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="font-heading bg-terracotta text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {saving ? "Saving…" : "Save changes"}
             </button>
@@ -309,9 +309,9 @@ export default function ManualRecipeDetail() {
 
       {/* Your Notes (read view) + Edit toggle */}
       {!editing && (
-        <div className="border-t border-line pt-8 flex flex-col gap-5">
+        <div className="border-t-2 border-ink pt-8 flex flex-col gap-5">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">Your Notes</h2>
+            <h2 className="font-heading font-extrabold text-xl text-ink uppercase tracking-wide">Your Notes</h2>
             <button
               onClick={() => setEditing(true)}
               className="text-sm font-bold text-terracotta hover:opacity-80 underline underline-offset-2"

@@ -45,7 +45,7 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
       <button
         onClick={() => setOpen(true)}
         aria-label="Open menu"
-        className="md:hidden w-10 h-10 flex items-center justify-center rounded-full border border-line text-ink text-lg"
+        className="md:hidden w-10 h-10 flex items-center justify-center border-2 border-ink text-ink text-lg"
       >
         ☰
       </button>
@@ -53,13 +53,13 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
       {open && (
         <div className="fixed inset-0 z-50 bg-terracotta flex flex-col px-6 py-6 sm:px-10 sm:py-8">
           <div className="flex items-center justify-between">
-            <span className="font-heading text-sm font-bold uppercase tracking-widest text-white">
+            <span className="font-heading text-sm font-bold uppercase tracking-widest text-cream">
               Menu
             </span>
             <button
               onClick={() => setOpen(false)}
               aria-label="Close menu"
-              className="text-white text-2xl leading-none"
+              className="text-cream text-2xl leading-none"
             >
               ✕
             </button>
@@ -72,10 +72,10 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
                   key={item.label}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="flex items-baseline gap-3 py-4 border-b border-white/25"
+                  className="flex items-baseline gap-3 py-4 border-b border-cream/25"
                 >
-                  <span className="text-xs font-bold text-white/60">{item.n}</span>
-                  <span className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <span className="text-xs font-bold text-cream/60">{item.n}</span>
+                  <span className="font-heading text-2xl sm:text-3xl font-bold uppercase text-cream">
                     {item.label}
                   </span>
                 </Link>
@@ -83,10 +83,10 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
                 <button
                   key={item.label}
                   onClick={handleLogout}
-                  className="flex items-baseline gap-3 py-4 border-b border-white/25 text-left"
+                  className="flex items-baseline gap-3 py-4 border-b border-cream/25 text-left"
                 >
-                  <span className="text-xs font-bold text-white/60">{item.n}</span>
-                  <span className="font-heading text-2xl sm:text-3xl font-bold text-white">
+                  <span className="text-xs font-bold text-cream/60">{item.n}</span>
+                  <span className="font-heading text-2xl sm:text-3xl font-bold uppercase text-cream">
                     {item.label}
                   </span>
                 </button>
@@ -94,7 +94,7 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
             )}
           </nav>
 
-          <div className="font-heading mt-auto text-4xl font-bold text-white tracking-tight">
+          <div className="font-heading mt-auto text-4xl font-bold uppercase text-cream tracking-tight">
             BrewMate
           </div>
         </div>

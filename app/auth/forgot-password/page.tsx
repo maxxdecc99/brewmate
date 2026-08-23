@@ -34,14 +34,14 @@ export default function ForgotPasswordPage() {
     return (
       <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
         <div className="flex flex-col gap-2">
-          <h1 className="font-heading text-4xl font-bold tracking-tight text-ink">Check your email</h1>
+          <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">Check your email</h1>
           <p className="text-muted font-medium">
             We sent a password reset link to{" "}
             <span className="font-bold text-ink">{email}</span>.
           </p>
         </div>
 
-        <div className="rounded-xl bg-gold px-4 py-4 text-espresso text-sm font-medium">
+        <div className="border-2 border-ink px-4 py-4 text-espresso text-sm font-medium">
           Click the link in your email to set a new password. The link expires in 1 hour.
         </div>
 
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
       <div className="flex flex-col gap-2">
-        <h1 className="font-heading text-4xl font-bold tracking-tight text-ink">Forgot password?</h1>
+        <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">Forgot password?</h1>
         <p className="text-muted font-medium">
           Enter your email and we&apos;ll send you a reset link.
         </p>
@@ -80,7 +80,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+          <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
             {error}
           </div>
         )}
@@ -88,7 +88,7 @@ export default function ForgotPasswordPage() {
         <button
           type="submit"
           disabled={loading}
-          className="font-heading bg-terracotta text-white font-bold py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide py-4 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {loading ? "Sending…" : "Send reset link →"}
         </button>

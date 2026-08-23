@@ -87,17 +87,17 @@ export default function AddRecipePage() {
 
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-8 py-8">
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
         <button
           onClick={() => router.push("/log")}
-          className="text-sm font-bold text-muted hover:text-ink self-start transition-colors"
+          className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
         >
           ← Brew Log
         </button>
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="font-heading text-4xl font-bold tracking-tight text-ink">Add Your Recipe</h1>
-            <span className="font-heading text-xs font-bold uppercase tracking-widest bg-surface-soft text-espresso/70 border border-line rounded-full px-2.5 py-0.5">
+            <h1 className="font-heading text-4xl font-extrabold uppercase tracking-tight text-ink">Add Your Recipe</h1>
+            <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-espresso/70 border border-line px-2 py-0.5">
               Free
             </span>
           </div>
@@ -191,7 +191,7 @@ export default function AddRecipePage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+          <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
             {error}
           </div>
         )}
@@ -200,7 +200,7 @@ export default function AddRecipePage() {
           <button
             type="submit"
             disabled={loading}
-            className="font-heading bg-terracotta text-white font-bold px-8 py-4 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-4 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? "Saving…" : "Save to Brew Log →"}
           </button>

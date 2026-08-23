@@ -18,7 +18,6 @@ import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
 import UpgradePrompt from "@/components/ui/UpgradePrompt";
 import { Label, Input, Select, Textarea } from "@/components/ui/FormField";
-import { SteamLines } from "@/components/ui/Decor";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -71,19 +70,53 @@ const DEFAULT_INPUT: CoffeeInput = {
 type View = "form" | "result";
 
 function Section({
+  n,
   title,
+  optional,
   children,
 }: {
+  n: string;
   title: string;
+  optional?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-5">
-      <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta border-b border-line pb-2">
-        {title}
+      <h2 className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
+        {n} — {title}{" "}
+        {optional && <span className="text-muted">(Optional)</span>}
       </h2>
+      <div className="h-0.5 bg-ink" />
       {children}
     </div>
+  );
+}
+
+function Chip({
+  label,
+  active,
+  onClick,
+  fillInk = false,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  fillInk?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`font-heading px-3 py-2.5 text-xs font-bold uppercase tracking-wide border transition-colors ${
+        active
+          ? fillInk
+            ? "bg-ink text-cream border-ink"
+            : "bg-terracotta text-white border-terracotta"
+          : "bg-transparent text-espresso/70 border-line hover:border-ink"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -203,54 +236,50 @@ export default function GeneratePage() {
   if (view === "result" && recipe) {
     const isEspresso = recipe.brewMethod === "Espresso";
 
+    const specCards = [
+      { label: "Dose", value: `${recipe.dose}g` },
+      isEspresso && recipe.yield
+        ? { label: "Yield", value: `${recipe.yield}g` }
+        : { label: "Water", value: `${recipe.waterAmount}g` },
+      { label: "Ratio", value: recipe.ratio },
+      { label: "Grind", value: `${recipe.grindMicrons}µm` },
+      { label: "Temperature", value: `${recipe.temperatureC}°C`, sub: `${recipe.temperatureF}°F` },
+      { label: "Total Time", value: recipe.totalTime },
+      ...(isEspresso && recipe.pressure ? [{ label: "Pressure", value: recipe.pressure }] : []),
+      ...(isEspresso && recipe.shotTime ? [{ label: "Shot Time", value: recipe.shotTime }] : []),
+    ];
+    const toneAt = (i: number): "terracotta" | "ink" | "surface" =>
+      i % 3 === 0 ? "terracotta" : i % 3 === 2 ? "ink" : "surface";
+
     return (
       <div className="flex flex-col gap-10">
         {/* Header */}
-        <div className="relative flex flex-col gap-3 border-b border-line pb-6">
-          <SteamLines className="pointer-events-none hidden sm:block absolute top-0 right-2 w-8 h-8 text-terracotta/25" />
+        <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
           <button
             onClick={handleNewRecipe}
-            className="text-sm font-bold text-muted hover:text-ink self-start transition-colors"
+            className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
           >
             ← New Recipe
           </button>
-          <h1 className="font-heading text-4xl sm:text-6xl font-bold tracking-tight leading-none text-ink">
+          <h1 className="font-heading text-4xl sm:text-6xl font-extrabold uppercase tracking-tight leading-[0.94] text-ink">
             {recipe.coffeeName}
           </h1>
-          <span className="inline-block self-start -rotate-2 font-heading text-sm font-bold text-white bg-olive rounded-full px-3 py-1">
+          <span className="inline-block self-start font-heading text-xs font-bold uppercase tracking-widest text-white bg-terracotta px-3 py-1">
             {recipe.brewMethod}
           </span>
         </div>
 
         {/* Metric cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <RecipeCard label="Dose" value={`${recipe.dose}g`} tone="terracotta" />
-          {isEspresso && recipe.yield ? (
-            <RecipeCard label="Yield" value={`${recipe.yield}g`} tone="gold" />
-          ) : (
-            <RecipeCard label="Water" value={`${recipe.waterAmount}g`} tone="gold" />
-          )}
-          <RecipeCard label="Ratio" value={recipe.ratio} tone="olive" />
-          <RecipeCard label="Grind" value={`${recipe.grindMicrons}µm`} tone="surface" />
-          <RecipeCard
-            label="Temperature"
-            value={`${recipe.temperatureC}°C`}
-            sub={`${recipe.temperatureF}°F`}
-            tone="surface"
-          />
-          <RecipeCard label="Total Time" value={recipe.totalTime} tone="surface" />
-          {isEspresso && recipe.pressure && (
-            <RecipeCard label="Pressure" value={recipe.pressure} tone="surface" />
-          )}
-          {isEspresso && recipe.shotTime && (
-            <RecipeCard label="Shot Time" value={recipe.shotTime} tone="surface" />
-          )}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-0.5 bg-line">
+          {specCards.map((c, i) => (
+            <RecipeCard key={c.label} label={c.label} value={c.value} sub={"sub" in c ? c.sub : undefined} tone={toneAt(i)} />
+          ))}
         </div>
 
         {/* Pre-infusion (espresso) */}
         {isEspresso && recipe.preInfusion && (
-          <div className="rounded-2xl bg-gold p-5">
-            <span className="font-heading text-xs font-bold uppercase tracking-widest text-espresso/70 block mb-1">
+          <div className="border-l-2 border-terracotta bg-surface p-5">
+            <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
               Pre-infusion
             </span>
             <p className="text-espresso font-medium">{recipe.preInfusion}</p>
@@ -258,22 +287,22 @@ export default function GeneratePage() {
         )}
 
         {/* Steps */}
-        <div className="flex flex-col gap-4">
-          <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-heading font-extrabold text-xl text-terracotta uppercase tracking-wide">
             Recipe Steps
           </h2>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col">
             {recipe.steps.map((step, i) => (
               <div
                 key={i}
-                className="rounded-2xl border border-line bg-surface p-5 flex gap-4"
+                className="flex gap-4 py-4 border-b border-line"
               >
-                <span className="font-heading text-2xl font-bold text-terracotta leading-none mt-0.5">
-                  {i + 1}
+                <span className="font-heading text-2xl font-extrabold text-terracotta leading-none w-9 shrink-0">
+                  {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="flex flex-col gap-1 flex-1">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-heading font-bold text-espresso">{step.title}</span>
+                    <span className="font-heading font-extrabold uppercase text-espresso">{step.title}</span>
                     <span className="text-xs font-bold text-muted whitespace-nowrap">
                       {step.time}
                     </span>
@@ -290,12 +319,12 @@ export default function GeneratePage() {
         {/* Adjustment tips */}
         {recipe.adjustmentTips.length > 0 && (
           <div className="flex flex-col gap-3">
-            <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
+            <h2 className="font-heading font-extrabold text-xl text-terracotta uppercase tracking-wide">
               Dial-In Tips
             </h2>
-            <div className="rounded-2xl border border-line bg-surface divide-y divide-line">
+            <div className="border-t border-line">
               {recipe.adjustmentTips.map((tip, i) => (
-                <p key={i} className="px-5 py-3 text-sm text-espresso/80 leading-relaxed">
+                <p key={i} className="py-3 border-b border-line text-sm text-espresso/80 leading-relaxed">
                   → {tip}
                 </p>
               ))}
@@ -305,7 +334,7 @@ export default function GeneratePage() {
 
         {/* Notes */}
         {recipe.notes && (
-          <div className="rounded-2xl bg-surface-soft border border-line p-5">
+          <div className="bg-surface border-l-2 border-terracotta p-5">
             <span className="font-heading text-xs font-bold uppercase tracking-widest text-muted block mb-1">
               Notes
             </span>
@@ -314,8 +343,8 @@ export default function GeneratePage() {
         )}
 
         {/* Save to brew log */}
-        <div className="border-t border-line pt-8 flex flex-col gap-5">
-          <h2 className="font-heading font-bold text-xl text-ink uppercase tracking-wide">
+        <div className="border-t-2 border-ink pt-8 flex flex-col gap-5">
+          <h2 className="font-heading font-extrabold text-xl text-ink uppercase tracking-wide">
             Save to Brew Log
           </h2>
           <div className="flex flex-col gap-2">
@@ -333,7 +362,7 @@ export default function GeneratePage() {
           </div>
           {saved ? (
             <div className="flex items-center gap-4">
-              <span className="font-bold text-terracotta">Saved to Brew Log ✓</span>
+              <span className="font-heading font-bold uppercase text-terracotta">Saved to Brew Log ✓</span>
               <button
                 onClick={() => router.push("/log")}
                 className="font-bold text-ink/70 underline underline-offset-2 hover:text-ink"
@@ -346,14 +375,14 @@ export default function GeneratePage() {
           ) : (
             <div className="flex flex-col gap-3">
               {saveError && (
-                <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-red-700 text-sm font-medium">
+                <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
                   {saveError}
                 </div>
               )}
               <button
                 onClick={handleSave}
                 disabled={saveLoading}
-                className="font-heading self-start bg-terracotta text-white font-bold px-8 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {saveLoading ? "Saving…" : "Save Recipe"}
               </button>
@@ -366,9 +395,9 @@ export default function GeneratePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-2">
-        <h1 className="font-heading text-5xl font-bold tracking-tight text-ink">
-          Generate Recipe
+      <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
+        <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">
+          Generate
         </h1>
         <p className="text-muted font-medium">
           Tell us about your coffee and we&apos;ll craft a precision recipe.
@@ -378,7 +407,7 @@ export default function GeneratePage() {
       <form onSubmit={handleGenerate} className="flex flex-col gap-10">
         <fieldset disabled={loading} className="contents">
         {/* Coffee info */}
-        <Section title="Coffee Info">
+        <Section n="01" title="Coffee Info">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Coffee Name *</Label>
@@ -458,23 +487,17 @@ export default function GeneratePage() {
         </Section>
 
         {/* Brew setup */}
-        <Section title="Brew Setup">
+        <Section n="02" title="Brew Setup">
           <div>
             <Label>Brew Method *</Label>
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {BREW_METHODS.map((m) => (
-                <button
-                  type="button"
+                <Chip
                   key={m}
+                  label={m}
+                  active={input.brewMethod === m}
                   onClick={() => set("brewMethod", m)}
-                  className={`font-heading rounded-xl px-3 py-3 text-sm font-bold transition-colors ${
-                    input.brewMethod === m
-                      ? "bg-terracotta text-white"
-                      : "bg-surface text-espresso/70 border border-line hover:bg-gold hover:text-espresso"
-                  }`}
-                >
-                  {m}
-                </button>
+                />
               ))}
             </div>
           </div>
@@ -494,24 +517,23 @@ export default function GeneratePage() {
             </div>
             <div>
               <Label>Preference *</Label>
-              <Select
-                value={input.preference}
-                onChange={(e) =>
-                  set("preference", e.target.value as UserPreference)
-                }
-              >
+              <div className="flex flex-wrap gap-2 pt-1">
                 {PREFERENCES.map((p) => (
-                  <option key={p} value={p}>
-                    {p.charAt(0).toUpperCase() + p.slice(1)}
-                  </option>
+                  <Chip
+                    key={p}
+                    label={p}
+                    active={input.preference === p}
+                    fillInk
+                    onClick={() => set("preference", p)}
+                  />
                 ))}
-              </Select>
+              </div>
             </div>
           </div>
         </Section>
 
         {/* Grinder */}
-        <Section title="Grinder (Optional)">
+        <Section n="03" title="Grinder" optional>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label>Grinder Model</Label>
@@ -523,22 +545,23 @@ export default function GeneratePage() {
             </div>
             <div>
               <Label>Burr Type</Label>
-              <Select
-                value={input.burrType ?? "unknown"}
-                onChange={(e) => set("burrType", e.target.value as BurrType)}
-              >
+              <div className="flex flex-wrap gap-2 pt-1">
                 {BURR_TYPES.map((b) => (
-                  <option key={b} value={b}>
-                    {b.charAt(0).toUpperCase() + b.slice(1)}
-                  </option>
+                  <Chip
+                    key={b}
+                    label={b}
+                    active={(input.burrType ?? "unknown") === b}
+                    fillInk
+                    onClick={() => set("burrType", b)}
+                  />
                 ))}
-              </Select>
+              </div>
             </div>
           </div>
         </Section>
 
         {error && (
-          <div className="rounded-xl border border-red-300 bg-red-50 px-5 py-4 text-red-700 font-medium text-sm">
+          <div className="border-2 border-terracotta px-5 py-4 text-terracotta font-bold text-sm">
             {error}
           </div>
         )}
@@ -547,7 +570,7 @@ export default function GeneratePage() {
           <button
             type="submit"
             disabled={loading}
-            className="font-heading bg-terracotta text-white font-bold px-10 py-4 text-lg rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
+            className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide px-10 py-4 text-base hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-3"
           >
             {loading && <Spinner />}
             {loading ? "Brewing…" : "Generate Recipe →"}

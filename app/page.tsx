@@ -23,16 +23,16 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 -mx-4 sm:mx-0">
       {/* Hero */}
-      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 bg-ink">
+      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 bg-white">
         <div className="w-full max-w-4xl mx-auto px-4 py-16 sm:py-24 flex flex-col gap-6">
           <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
             /// AI Coffee Recipe System · Est. 2026
           </span>
-          <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-white leading-[0.86] tracking-tight uppercase">
+          <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-ink leading-[0.86] tracking-tight uppercase">
             Brew<br />
             <span className="text-terracotta">Better.</span>
           </h1>
-          <p className="text-lg text-white/80 max-w-lg leading-relaxed">
+          <p className="text-lg text-muted max-w-lg leading-relaxed">
             Your beans, your gear, your palate — one precise recipe. No
             guesswork, no folklore.
           </p>
@@ -45,7 +45,7 @@ export default function Home() {
             </Link>
             <Link
               href="/log"
-              className="font-heading inline-flex items-center justify-center bg-transparent text-white font-bold uppercase tracking-wide px-8 py-4 text-base border-2 border-white hover:bg-white/10 transition-colors"
+              className="font-heading inline-flex items-center justify-center bg-transparent text-ink font-bold uppercase tracking-wide px-8 py-4 text-base border-2 border-ink hover:bg-ink/5 transition-colors"
             >
               Open brew log
             </Link>

@@ -23,22 +23,14 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 -mx-4 sm:mx-0">
       {/* Hero */}
-      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 min-h-[560px] sm:min-h-[680px] flex items-end overflow-hidden border-b-2 border-ink">
-        <Image
-          src="/hero.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-        />
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 py-12 sm:py-16 flex flex-col gap-6">
+      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 bg-ink">
+        <div className="w-full max-w-4xl mx-auto px-4 py-16 sm:py-24 flex flex-col gap-6">
           <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
             /// AI Coffee Recipe System · Est. 2026
           </span>
           <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-white leading-[0.86] tracking-tight uppercase">
             Brew<br />
-            Better.
+            <span className="text-terracotta">Better.</span>
           </h1>
           <p className="text-lg text-white/80 max-w-lg leading-relaxed">
             Your beans, your gear, your palate — one precise recipe. No
@@ -61,9 +53,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Direct-flash band */}
-      <div className="h-40 sm:h-56 border-y-2 border-ink bg-[repeating-linear-gradient(135deg,var(--color-surface)_0_9px,var(--color-surface-soft)_9px_18px)] flex items-end px-4 sm:px-0 pb-4">
-        <span className="font-mono text-[10px] font-medium uppercase tracking-widest bg-ink text-cream px-2 py-1">
+      {/* Hero photo band */}
+      <div className="relative h-40 sm:h-56 border-y-2 border-ink overflow-hidden flex items-end px-4 sm:px-0 pb-4">
+        <Image
+          src="/hero.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+        />
+        <span className="relative font-mono text-[10px] font-medium uppercase tracking-widest bg-ink text-cream px-2 py-1">
           [ Direct flash · pour shot ]
         </span>
       </div>

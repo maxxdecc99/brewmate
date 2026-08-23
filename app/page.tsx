@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const FEATURES = [
   {
@@ -22,31 +23,41 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 -mx-4 sm:mx-0">
       {/* Hero */}
-      <section className="flex flex-col gap-6 px-4 sm:px-0">
-        <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
-          /// AI Coffee Recipe System · Est. 2026
-        </span>
-        <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-ink leading-[0.86] tracking-tight uppercase">
-          Brew<br />
-          <span className="text-terracotta">Better.</span>
-        </h1>
-        <p className="text-lg text-muted max-w-lg leading-relaxed">
-          Your beans, your gear, your palate — one precise recipe. No
-          guesswork, no folklore.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <Link
-            href="/generate"
-            className="font-heading inline-flex items-center justify-center bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-4 text-base hover:bg-[#dd2b0f] transition-colors"
-          >
-            Generate a recipe →
-          </Link>
-          <Link
-            href="/log"
-            className="font-heading inline-flex items-center justify-center bg-transparent text-ink font-bold uppercase tracking-wide px-8 py-4 text-base border-2 border-ink hover:bg-ink/5 transition-colors"
-          >
-            Open brew log
-          </Link>
+      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 min-h-[560px] sm:min-h-[680px] flex items-end overflow-hidden border-b-2 border-ink">
+        <Image
+          src="/hero.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 py-12 sm:py-16 flex flex-col gap-6">
+          <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
+            /// AI Coffee Recipe System · Est. 2026
+          </span>
+          <h1 className="font-heading text-6xl sm:text-8xl font-extrabold text-white leading-[0.86] tracking-tight uppercase">
+            Brew<br />
+            Better.
+          </h1>
+          <p className="text-lg text-white/80 max-w-lg leading-relaxed">
+            Your beans, your gear, your palate — one precise recipe. No
+            guesswork, no folklore.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <Link
+              href="/generate"
+              className="font-heading inline-flex items-center justify-center bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-4 text-base hover:bg-[#dd2b0f] transition-colors"
+            >
+              Generate a recipe →
+            </Link>
+            <Link
+              href="/log"
+              className="font-heading inline-flex items-center justify-center bg-transparent text-white font-bold uppercase tracking-wide px-8 py-4 text-base border-2 border-white hover:bg-white/10 transition-colors"
+            >
+              Open brew log
+            </Link>
+          </div>
         </div>
       </section>
 

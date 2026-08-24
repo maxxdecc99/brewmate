@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 const FEATURES = [
   {
@@ -52,20 +51,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Hero photo band */}
-      <div className="relative h-40 sm:h-56 border-y-2 border-ink overflow-hidden flex items-end px-4 sm:px-0 pb-4">
-        <Image
-          src="/hero.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover"
-        />
-        <span className="relative font-mono text-[10px] font-medium uppercase tracking-widest bg-ink text-cream px-2 py-1">
-          [ Direct flash · pour shot ]
-        </span>
-      </div>
 
       {/* Index — what it does */}
       <section className="flex flex-col gap-2 px-4 sm:px-0">

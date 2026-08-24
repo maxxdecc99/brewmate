@@ -23,7 +23,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-16 -mx-4 sm:mx-0">
       {/* Hero */}
-      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 bg-white">
+      <section className="relative w-screen left-1/2 -translate-x-1/2 -mt-10 bg-cream">
         <div className="w-full max-w-4xl mx-auto px-4 py-16 sm:py-24 flex flex-col gap-6">
           <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
             /// AI Coffee Recipe System · Est. 2026

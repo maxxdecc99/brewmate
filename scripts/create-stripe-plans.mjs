@@ -19,9 +19,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const PLANS = [
-  { key: "monthly", name: "BrewMate Brew+ — Monthly", unit_amount: 399, interval: "month", interval_count: 1 },
-  { key: "semiannual", name: "BrewMate Brew+ — 6 Months", unit_amount: 1494, interval: "month", interval_count: 6 },
-  { key: "annual", name: "BrewMate Brew+ — Annual", unit_amount: 2388, interval: "year", interval_count: 1 },
+  { key: "monthly", name: "GetYourBrew Brew+ — Monthly", unit_amount: 399, interval: "month", interval_count: 1 },
+  { key: "semiannual", name: "GetYourBrew Brew+ — 6 Months", unit_amount: 1494, interval: "month", interval_count: 6 },
+  { key: "annual", name: "GetYourBrew Brew+ — Annual", unit_amount: 2388, interval: "year", interval_count: 1 },
 ];
 
 async function main() {

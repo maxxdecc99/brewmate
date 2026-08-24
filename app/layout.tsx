@@ -10,7 +10,7 @@ const archivo = Archivo({
 });
 
 export const metadata: Metadata = {
-  title: "BrewMate — AI Coffee Recipe Assistant",
+  title: "GetYourBrew — AI Coffee Recipe Assistant",
   description:
     "Generate better coffee recipes based on your beans, brew method and gear.",
 };

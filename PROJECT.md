@@ -1,4 +1,4 @@
-# BrewMate — AI Coffee Recipe Assistant
+# GetYourBrew — AI Coffee Recipe Assistant
 
 MVP web app. Generate precise coffee recipes based on beans, brew method and gear.
 

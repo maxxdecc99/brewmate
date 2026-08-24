@@ -144,7 +144,7 @@ export default function LoginPage() {
     <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
       <div className="flex flex-col gap-2">
         <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">Welcome back</h1>
-        <p className="text-muted font-medium">Log in to your BrewMate account.</p>
+        <p className="text-muted font-medium">Log in to your GetYourBrew account.</p>
       </div>
       <Suspense>
         <LoginForm />

@@ -1,4 +1,4 @@
--- BrewMate Database Schema
+-- GetYourBrew Database Schema
 -- Run this in the Supabase SQL editor
 
 -- Profiles table (extends auth.users)

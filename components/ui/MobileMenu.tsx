@@ -95,7 +95,7 @@ export default function MobileMenu({ loggedIn }: { loggedIn: boolean }) {
           </nav>
 
           <div className="font-heading mt-auto text-4xl font-bold uppercase text-cream tracking-tight">
-            BrewMate
+            GetYourBrew
           </div>
         </div>
       )}

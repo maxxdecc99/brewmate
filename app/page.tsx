@@ -103,7 +103,7 @@ export default function Home() {
       </section>
 
       <p className="font-heading text-[10px] font-bold uppercase tracking-widest text-muted px-4 sm:px-0 -mt-8">
-        BrewMate /// 2026 /// V60 · Kalita · Chemex · AeroPress · French Press · Espresso
+        GetYourBrew /// 2026 /// V60 · Kalita · Chemex · AeroPress · French Press · Espresso
       </p>
     </div>
   );

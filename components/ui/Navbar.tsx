@@ -16,7 +16,7 @@ export default async function Navbar() {
           href="/"
           className="font-heading text-xl font-extrabold uppercase tracking-tight text-ink hover:text-terracotta transition-colors shrink-0"
         >
-          BrewMate
+          GetYourBrew
         </Link>
 
         <MobileMenu loggedIn={!!user} />

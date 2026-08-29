@@ -118,8 +118,9 @@ const GENERATING_STEPS = [
   "Dial-in corrections",
 ];
 
-function GeneratingOverlay({ input }: { input: CoffeeInput }) {
+function GeneratingOverlay({ input, done }: { input: CoffeeInput; done: boolean }) {
   const [step, setStep] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -127,6 +128,33 @@ function GeneratingOverlay({ input }: { input: CoffeeInput }) {
     }, 900);
     return () => clearInterval(id);
   }, []);
+
+  // Simulated progress: fast climb to ~75% in the first ~2.6s, then a slow
+  // asymptotic creep toward ~90% while we wait on the real API response.
+  // Only the actual fetch resolving (done=true) is allowed to reach 100%.
+  useEffect(() => {
+    if (done) {
+      setProgress(100);
+      return;
+    }
+    const start = Date.now();
+    const id = setInterval(() => {
+      setProgress((p) => {
+        const elapsed = Date.now() - start;
+        if (elapsed < 2600) {
+          return Math.min(75, (elapsed / 2600) * 75);
+        }
+        return p + (90 - p) * 0.05;
+      });
+    }, 120);
+    return () => clearInterval(id);
+  }, [done]);
+
+  // Once the real response is back, let the last step ("Dial-in
+  // corrections") pick up its checkmark instead of hanging on "...".
+  useEffect(() => {
+    if (done) setStep(GENERATING_STEPS.length);
+  }, [done]);
 
   return (
     <div className="fixed inset-0 z-50 bg-terracotta text-white flex flex-col overflow-y-auto">
@@ -152,8 +180,8 @@ function GeneratingOverlay({ input }: { input: CoffeeInput }) {
         <div className="flex flex-col gap-3">
           <div className="h-1 bg-white/35">
             <div
-              className="h-1 bg-white transition-all duration-700"
-              style={{ width: `${((step + 1) / GENERATING_STEPS.length) * 100}%` }}
+              className="h-1 bg-white transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
             />
           </div>
           <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-white/85">
@@ -171,6 +199,7 @@ export default function GeneratePage() {
   const [input, setInput] = useState<CoffeeInput>(DEFAULT_INPUT);
   const [recipe, setRecipe] = useState<GeneratedRecipe | null>(null);
   const [loading, setLoading] = useState(false);
+  const [generationDone, setGenerationDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
   const [userNotes, setUserNotes] = useState("");
@@ -203,6 +232,7 @@ export default function GeneratePage() {
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setGenerationDone(false);
     setError(null);
     setRecipe(null);
 
@@ -227,6 +257,11 @@ export default function GeneratePage() {
         setLoading(false);
         return;
       }
+
+      // Let the overlay actually show its 100%-and-checked completion beat
+      // before swapping to the result view, instead of vanishing instantly.
+      setGenerationDone(true);
+      await new Promise((resolve) => setTimeout(resolve, 550));
 
       router.refresh();
       setRecipe(data.recipe);
@@ -465,7 +500,7 @@ export default function GeneratePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {loading && <GeneratingOverlay input={input} />}
+      {loading && <GeneratingOverlay input={input} done={generationDone} />}
       <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
         <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">
           Generate

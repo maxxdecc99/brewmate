@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { RecipeRow } from "@/types";
 import { getRecipes, deleteRecipe } from "@/lib/recipes";
+import { createClient } from "@/lib/supabase/client";
 import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
+
+const FREE_LOG_LIMIT = 10;
 
 export default function BrewLogPage() {
   const [items, setItems] = useState<RecipeRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<string>("ALL");
+  const [planInfo, setPlanInfo] = useState<{ isBrewPlus: boolean; logsUsed: number } | null>(null);
 
   async function load() {
     try {
@@ -19,7 +24,29 @@ export default function BrewLogPage() {
     }
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from("profiles")
+        .select("is_brew_plus_active, logs_created_count")
+        .eq("id", user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) {
+            setPlanInfo({ isBrewPlus: !!data.is_brew_plus_active, logsUsed: data.logs_created_count ?? 0 });
+          }
+        });
+    });
+  }, []);
+
+  const methods = useMemo(
+    () => Array.from(new Set(items.map((i) => i.brew_method).filter(Boolean))) as string[],
+    [items]
+  );
+  const filtered = filter === "ALL" ? items : items.filter((i) => i.brew_method === filter);
 
   async function handleDelete(id: string) {
     await deleteRecipe(id);
@@ -69,6 +96,11 @@ export default function BrewLogPage() {
             </Link>
           </div>
         </div>
+        {planInfo && !planInfo.isBrewPlus && (
+          <p className="font-heading text-xs font-bold uppercase tracking-widest text-[#9B9691]">
+            Free plan · {planInfo.logsUsed} of {FREE_LOG_LIMIT} logs used
+          </p>
+        )}
       </div>
     );
   }
@@ -88,8 +120,24 @@ export default function BrewLogPage() {
         </Link>
       </div>
 
+      {methods.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          {["ALL", ...methods].map((m) => (
+            <button
+              key={m}
+              onClick={() => setFilter(m)}
+              className={`shrink-0 font-heading text-[10px] font-bold uppercase tracking-[.18em] px-4 py-2.5 transition-colors ${
+                filter === m ? "bg-ink text-cream" : "border border-line text-muted hover:border-ink"
+              }`}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex flex-col">
-        {items.map((item, i) => {
+        {filtered.map((item, i) => {
           const href = item.source === "ai" ? `/log/${item.id}` : `/log/manual/${item.id}`;
 
           return (
@@ -169,6 +217,12 @@ export default function BrewLogPage() {
           );
         })}
       </div>
+
+      {planInfo && !planInfo.isBrewPlus && (
+        <p className="font-heading text-xs font-bold uppercase tracking-widest text-[#9B9691]">
+          Free plan · {planInfo.logsUsed} of {FREE_LOG_LIMIT} logs used
+        </p>
+      )}
     </div>
   );
 }

@@ -142,7 +142,10 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto flex flex-col gap-8 py-8">
-      <div className="flex flex-col gap-2">
+      <span className="font-heading text-lg font-extrabold uppercase tracking-tight leading-[0.9] text-muted">
+        Get your<br />brew
+      </span>
+      <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
         <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">Welcome back</h1>
         <p className="text-muted font-medium">Log in to your GetYourBrew account.</p>
       </div>

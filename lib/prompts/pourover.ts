@@ -3,7 +3,6 @@ import {
   normalizeRoast,
   grindAdjustment,
   tempForRoast,
-  preferenceNote,
   JSON_SCHEMA,
 } from "./utils";
 
@@ -11,7 +10,6 @@ export function buildPouroverPrompt(input: CoffeeInput): string {
   const roast = normalizeRoast(input.roastLevel);
   const temp = tempForRoast(input.roastLevel, input.process);
   const grindNote = grindAdjustment(input.roastLevel, input.process);
-  const prefNote = preferenceNote(input.preference);
   const waterAmount = Math.round(input.dose * 16.5);
   const bloomWater = Math.round(input.dose * 2.5);
 
@@ -29,7 +27,7 @@ export function buildPouroverPrompt(input: CoffeeInput): string {
       ? "moderate agitation — gentle stir at bloom, one swirl mid-pour to ensure even extraction"
       : "light agitation — swirl at bloom, no stirring during pours";
 
-  return `You are a specialty coffee expert. Generate a precise ${input.brewMethod} recipe based on the following coffee and user preferences.
+  return `You are a specialty coffee expert. Generate a precise ${input.brewMethod} recipe based on the following coffee.
 
 COFFEE INFO:
 - Name: ${input.coffeeName}
@@ -43,16 +41,13 @@ ${input.variety ? `- Variety: ${input.variety}` : ""}
 BREW PARAMETERS:
 - Method: ${input.brewMethod}
 - Dose: ${input.dose}g
-- Target water: ~${waterAmount}g (ratio 1:16.5, adjust if preference demands)
+- Target water: ~${waterAmount}g (ratio 1:16.5)
 - Bloom water: ~${bloomWater}g
 - Grind range: ${micronRange}
 - Grind note: ${grindNote}
 - Water temp: ~${temp.c}°C / ${temp.f}°F
 ${input.grinder ? `- Grinder: ${input.grinder}` : ""}
 ${input.burrType && input.burrType !== "unknown" ? `- Burr type: ${input.burrType} (flat burrs: more clarity/separation; conical: more body/sweetness)` : ""}
-
-USER PREFERENCE: ${input.preference}
-Preference note: ${prefNote}
 
 RECIPE PRINCIPLES (James Hoffmann / Lance Hedrick style):
 - Bloom: 2–2.5x coffee dose, 30–45 seconds

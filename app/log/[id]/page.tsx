@@ -46,32 +46,26 @@ export default function SavedRecipeDetail() {
   return (
     <div className="flex flex-col gap-10">
       {/* Header */}
-      <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
+      <div className="-mx-4 sm:mx-0 bg-ink text-cream px-4 sm:px-8 py-8 flex flex-col gap-3">
         <button
           onClick={() => router.push("/log")}
-          className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
+          className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880] hover:text-cream self-start transition-colors"
         >
           ← Brew Log
         </button>
-        <h1 className="font-heading text-4xl sm:text-6xl font-extrabold uppercase tracking-tight leading-[0.94] text-ink">
+        <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-terracotta">
+          {recipe.brewMethod} ·{" "}
+          {new Date(entry.created_at).toLocaleDateString("en-GB", {
+            year: "numeric", month: "2-digit", day: "2-digit",
+          })}
+        </span>
+        <h1 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1] text-cream">
           {recipe.coffeeName}
         </h1>
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="inline-block self-start font-heading text-xs font-bold uppercase tracking-widest text-white bg-terracotta px-3 py-1">
-            {recipe.brewMethod}
-          </span>
-          <span className="text-line">·</span>
-          <span className="text-muted font-medium">{input.roaster}</span>
-          <span className="text-line">·</span>
-          <span className="text-muted font-medium">{input.origin}</span>
-          <span className="text-line">·</span>
-          <span className="text-muted font-medium text-sm">
-            {new Date(entry.created_at).toLocaleDateString("en-GB", {
-              day: "numeric", month: "long", year: "numeric",
-            })}
-          </span>
+        <p className="text-[#A9A49C] font-medium">{input.roaster} · {input.origin}</p>
+        <div className="font-heading text-6xl sm:text-7xl font-extrabold tracking-tight leading-[0.9] text-terracotta">
+          {recipe.ratio}
         </div>
-        <StarRating value={rating} readonly />
       </div>
 
       {/* Metric cards */}
@@ -186,6 +180,25 @@ export default function SavedRecipeDetail() {
           </div>
         )}
       </div>
+
+      <button
+        onClick={() => {
+          sessionStorage.setItem(
+            "activeBrewTimer",
+            JSON.stringify({
+              coffeeName: recipe.coffeeName,
+              brewMethod: recipe.brewMethod,
+              totalTime: recipe.totalTime,
+              steps: recipe.steps,
+            })
+          );
+          router.push("/brew/timer");
+        }}
+        className="-mx-4 sm:mx-0 bg-ink text-cream font-heading text-2xl sm:text-3xl font-extrabold uppercase tracking-tight px-4 sm:px-8 py-6 flex items-center justify-between hover:bg-[#2a2725] transition-colors"
+      >
+        Brew again
+        <span className="text-terracotta">→</span>
+      </button>
     </div>
   );
 }

@@ -24,13 +24,6 @@ export type RoastLevel =
 
 export type BurrType = "flat" | "conical" | "unknown";
 
-export type UserPreference =
-  | "balanced"
-  | "sweeter"
-  | "brighter"
-  | "stronger"
-  | "lower acidity";
-
 export interface CoffeeInput {
   coffeeName: string;
   roaster: string;
@@ -43,7 +36,6 @@ export interface CoffeeInput {
   dose: number;
   grinder?: string;
   burrType?: BurrType;
-  preference: UserPreference;
 }
 
 export interface RecipeStep {

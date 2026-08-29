@@ -3,7 +3,6 @@ import {
   normalizeRoast,
   grindAdjustment,
   tempForRoast,
-  preferenceNote,
   ESPRESSO_JSON_SCHEMA,
 } from "./utils";
 
@@ -11,7 +10,6 @@ export function buildEspressoPrompt(input: CoffeeInput): string {
   const roast = normalizeRoast(input.roastLevel);
   const temp = tempForRoast(input.roastLevel, input.process);
   const grindNote = grindAdjustment(input.roastLevel, input.process);
-  const prefNote = preferenceNote(input.preference);
 
   // Starting ratios by roast
   const ratio = roast === "light" ? "1:2.5" : roast === "dark" ? "1:1.8" : "1:2";
@@ -22,7 +20,7 @@ export function buildEspressoPrompt(input: CoffeeInput): string {
       ? Math.round(input.dose * 1.8)
       : Math.round(input.dose * 2);
 
-  return `You are a specialty coffee expert. Generate a precise espresso recipe based on the following coffee and user preferences.
+  return `You are a specialty coffee expert. Generate a precise espresso recipe based on the following coffee.
 
 COFFEE INFO:
 - Name: ${input.coffeeName}
@@ -43,9 +41,6 @@ BREW PARAMETERS:
 - Pressure: 9 bar (standard; note if lower pressure recommended)
 ${input.grinder ? `- Grinder: ${input.grinder}` : ""}
 ${input.burrType && input.burrType !== "unknown" ? `- Burr type: ${input.burrType}` : ""}
-
-USER PREFERENCE: ${input.preference}
-Preference note: ${prefNote}
 
 ESPRESSO PRINCIPLES:
 - Shot time target: 25–30 sec (light roast may run 28–35s at longer ratio)

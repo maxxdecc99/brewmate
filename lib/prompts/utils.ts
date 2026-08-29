@@ -1,4 +1,4 @@
-import { RoastLevel, Process, UserPreference } from "@/types";
+import { RoastLevel, Process } from "@/types";
 
 export function normalizeRoast(roast: RoastLevel): "light" | "medium" | "dark" {
   if (roast === "filter roast") return "light";
@@ -45,21 +45,6 @@ export function tempForRoast(
 
   const f = Math.round(c * 9 / 5 + 32);
   return { c, f };
-}
-
-export function preferenceNote(pref: UserPreference): string {
-  const map: Record<UserPreference, string> = {
-    balanced: "aim for balanced extraction, no extreme adjustments",
-    sweeter:
-      "target sweetness: slightly lower temp, moderate agitation, consider shorter bloom",
-    brighter:
-      "target brightness/acidity: slightly higher temp, finer grind, more agitation",
-    stronger:
-      "stronger cup: reduce ratio slightly (closer to 1:14–1:15), ensure full extraction",
-    "lower acidity":
-      "reduce acidity: lower temp, coarser grind, less agitation, longer steep if applicable",
-  };
-  return map[pref];
 }
 
 export const JSON_SCHEMA = `Return ONLY valid JSON, no markdown, no explanation. Use this exact structure:

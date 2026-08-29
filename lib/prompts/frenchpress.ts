@@ -3,7 +3,6 @@ import {
   normalizeRoast,
   grindAdjustment,
   tempForRoast,
-  preferenceNote,
   JSON_SCHEMA,
 } from "./utils";
 
@@ -11,10 +10,9 @@ export function buildFrenchPressPrompt(input: CoffeeInput): string {
   const roast = normalizeRoast(input.roastLevel);
   const temp = tempForRoast(input.roastLevel, input.process);
   const grindNote = grindAdjustment(input.roastLevel, input.process);
-  const prefNote = preferenceNote(input.preference);
   const waterAmount = Math.round(input.dose * 15);
 
-  return `You are a specialty coffee expert. Generate a precise French Press recipe based on the following coffee and user preferences.
+  return `You are a specialty coffee expert. Generate a precise French Press recipe based on the following coffee.
 
 COFFEE INFO:
 - Name: ${input.coffeeName}
@@ -34,9 +32,6 @@ BREW PARAMETERS:
 - Water temp: ~${temp.c}°C / ${temp.f}°F
 ${input.grinder ? `- Grinder: ${input.grinder}` : ""}
 ${input.burrType && input.burrType !== "unknown" ? `- Burr type: ${input.burrType}` : ""}
-
-USER PREFERENCE: ${input.preference}
-Preference note: ${prefNote}
 
 FRENCH PRESS PRINCIPLES:
 - Total steep: 4–5 minutes

@@ -8,7 +8,6 @@ import {
   Process,
   RoastLevel,
   BurrType,
-  UserPreference,
   GeneratedRecipe,
 } from "@/types";
 import { saveAIRecipe, isLogLimitError } from "@/lib/recipes";
@@ -44,13 +43,6 @@ const ROAST_LEVELS: RoastLevel[] = [
   "unknown",
 ];
 const BURR_TYPES: BurrType[] = ["flat", "conical", "unknown"];
-const PREFERENCES: UserPreference[] = [
-  "balanced",
-  "sweeter",
-  "brighter",
-  "stronger",
-  "lower acidity",
-];
 
 const DEFAULT_INPUT: CoffeeInput = {
   coffeeName: "",
@@ -64,7 +56,6 @@ const DEFAULT_INPUT: CoffeeInput = {
   dose: 15,
   grinder: "",
   burrType: "unknown",
-  preference: "balanced",
 };
 
 type View = "form" | "result";
@@ -117,6 +108,60 @@ function Chip({
     >
       {label}
     </button>
+  );
+}
+
+const GENERATING_STEPS = [
+  "Reading the bean",
+  "Matching grind to your gear",
+  "Writing the pour schedule",
+  "Dial-in corrections",
+];
+
+function GeneratingOverlay({ input }: { input: CoffeeInput }) {
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setStep((s) => Math.min(s + 1, GENERATING_STEPS.length - 1));
+    }, 900);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-terracotta text-white flex flex-col overflow-y-auto">
+      <div className="max-w-4xl mx-auto w-full px-4 py-16 flex flex-col gap-10 flex-1">
+        <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-white/80">
+          {input.brewMethod} · {input.coffeeName || "Your coffee"} · {input.dose}g
+        </span>
+        <h1 className="font-heading text-5xl sm:text-7xl font-extrabold uppercase tracking-tight leading-[0.86]">
+          Dialling<br />it in
+        </h1>
+        <div className="flex flex-col mt-4">
+          {GENERATING_STEPS.map((label, i) => (
+            <div
+              key={label}
+              className="flex items-center justify-between py-4 border-t border-white/45 font-heading font-bold text-sm"
+            >
+              <span className={i > step ? "text-white/45" : ""}>{label}</span>
+              <span>{i < step ? "✓" : i === step ? "···" : ""}</span>
+            </div>
+          ))}
+        </div>
+        <div className="flex-1" />
+        <div className="flex flex-col gap-3">
+          <div className="h-1 bg-white/35">
+            <div
+              className="h-1 bg-white transition-all duration-700"
+              style={{ width: `${((step + 1) / GENERATING_STEPS.length) * 100}%` }}
+            />
+          </div>
+          <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-white/85">
+            Usually a few seconds
+          </span>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -254,18 +299,26 @@ export default function GeneratePage() {
     return (
       <div className="flex flex-col gap-10">
         {/* Header */}
-        <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
-          <button
-            onClick={handleNewRecipe}
-            className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
-          >
-            ← New Recipe
-          </button>
-          <h1 className="font-heading text-4xl sm:text-6xl font-extrabold uppercase tracking-tight leading-[0.94] text-ink">
+        <div className="-mx-4 sm:mx-0 bg-ink text-cream px-4 sm:px-8 py-8 flex flex-col gap-3">
+          <div className="flex items-start justify-between gap-4">
+            <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-terracotta pt-1">
+              {recipe.brewMethod} Recipe
+            </span>
+            <button
+              onClick={handleNewRecipe}
+              className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-cream border border-cream/55 px-3 py-2 hover:bg-cream/10 transition-colors shrink-0"
+            >
+              New
+            </button>
+          </div>
+          <h1 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1] text-cream">
             {recipe.coffeeName}
           </h1>
-          <span className="inline-block self-start font-heading text-xs font-bold uppercase tracking-widest text-white bg-terracotta px-3 py-1">
-            {recipe.brewMethod}
+          <div className="font-heading text-6xl sm:text-7xl font-extrabold tracking-tight leading-[0.9] text-terracotta">
+            {recipe.ratio}
+          </div>
+          <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880]">
+            Brew Ratio
           </span>
         </div>
 
@@ -314,6 +367,23 @@ export default function GeneratePage() {
               </div>
             ))}
           </div>
+          <button
+            onClick={() => {
+              sessionStorage.setItem(
+                "activeBrewTimer",
+                JSON.stringify({
+                  coffeeName: recipe.coffeeName,
+                  brewMethod: recipe.brewMethod,
+                  totalTime: recipe.totalTime,
+                  steps: recipe.steps,
+                })
+              );
+              router.push("/brew/timer");
+            }}
+            className="font-heading self-start mt-2 bg-ink text-cream font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#2a2725] transition-colors inline-flex items-center gap-2"
+          >
+            Start Brew Timer →
+          </button>
         </div>
 
         {/* Adjustment tips */}
@@ -395,6 +465,7 @@ export default function GeneratePage() {
 
   return (
     <div className="flex flex-col gap-8">
+      {loading && <GeneratingOverlay input={input} />}
       <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
         <h1 className="font-heading text-5xl font-extrabold uppercase tracking-tight text-ink">
           Generate
@@ -502,33 +573,17 @@ export default function GeneratePage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <Label>Coffee Dose (g) *</Label>
-              <Input
-                required
-                type="number"
-                min={5}
-                max={50}
-                step={0.5}
-                value={input.dose}
-                onChange={(e) => set("dose", parseFloat(e.target.value) || 15)}
-              />
-            </div>
-            <div>
-              <Label>Preference *</Label>
-              <div className="flex flex-wrap gap-2 pt-1">
-                {PREFERENCES.map((p) => (
-                  <Chip
-                    key={p}
-                    label={p}
-                    active={input.preference === p}
-                    fillInk
-                    onClick={() => set("preference", p)}
-                  />
-                ))}
-              </div>
-            </div>
+          <div>
+            <Label>Coffee Dose (g) *</Label>
+            <Input
+              required
+              type="number"
+              min={5}
+              max={50}
+              step={0.5}
+              value={input.dose}
+              onChange={(e) => set("dose", parseFloat(e.target.value) || 15)}
+            />
           </div>
         </Section>
 

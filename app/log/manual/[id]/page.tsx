@@ -130,43 +130,35 @@ export default function ManualRecipeDetail() {
   return (
     <div className="flex flex-col gap-10">
       {/* Header */}
-      <div className="flex flex-col gap-3 border-b-2 border-ink pb-6">
+      <div className="-mx-4 sm:mx-0 bg-ink text-cream px-4 sm:px-8 py-8 flex flex-col gap-3">
         <button
           onClick={() => router.push("/log")}
-          className="font-heading text-xs font-bold uppercase tracking-widest text-muted hover:text-ink self-start transition-colors"
+          className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880] hover:text-cream self-start transition-colors"
         >
           ← Brew Log
         </button>
-        <div className="flex flex-col gap-2">
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="font-heading text-4xl sm:text-6xl font-extrabold uppercase tracking-tight leading-[0.94] text-ink">
-              {entry.title || "Untitled Recipe"}
-            </h1>
-            <span className="font-heading text-[10px] font-bold uppercase tracking-widest text-espresso/70 border border-line px-2 py-0.5 shrink-0">
-              Your Recipe
-            </span>
-          </div>
-          <div className="flex items-center gap-3 flex-wrap">
-            {entry.brew_method && (
-              <>
-                <span className="text-lg text-ink/70 font-bold">{entry.brew_method}</span>
-                <span className="text-line">·</span>
-              </>
-            )}
-            {entry.bean && (
-              <>
-                <span className="text-muted font-medium">{entry.bean}</span>
-                <span className="text-line">·</span>
-              </>
-            )}
-            <span className="text-muted font-medium text-sm">
+        <div className="flex items-center gap-2 flex-wrap">
+          {entry.brew_method && (
+            <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-terracotta">
+              {entry.brew_method} ·{" "}
               {new Date(entry.created_at).toLocaleDateString("en-GB", {
-                day: "numeric", month: "long", year: "numeric",
+                year: "numeric", month: "2-digit", day: "2-digit",
               })}
             </span>
-          </div>
+          )}
+          <span className="border border-cream/40 px-2 py-1 font-heading text-[9px] font-bold uppercase tracking-[.2em] text-[#A9A49C]">
+            Manual
+          </span>
         </div>
-        <StarRating value={entry.rating} readonly />
+        <h1 className="font-heading text-3xl sm:text-5xl font-extrabold tracking-tight leading-[1] text-cream">
+          {entry.title || "Untitled Recipe"}
+        </h1>
+        {entry.bean && <p className="text-[#A9A49C] font-medium">{entry.bean}</p>}
+        {entry.ratio && (
+          <div className="font-heading text-6xl sm:text-7xl font-extrabold tracking-tight leading-[0.9] text-terracotta">
+            {entry.ratio}
+          </div>
+        )}
       </div>
 
       {/* Structured recipe content (read view) */}
@@ -329,6 +321,38 @@ export default function ManualRecipeDetail() {
             {saved && <span className="text-terracotta font-bold text-sm">Saved ✓</span>}
           </div>
         </div>
+      )}
+
+      {!editing && entry.brew_steps && (
+        <button
+          onClick={() => {
+            // Best-effort parse of "0:00 — Bloom 45g" style lines into timer steps.
+            const steps = entry.brew_steps!
+              .split(/\r?\n/)
+              .map((line) => {
+                const match = line.match(/^\s*(\d{1,2}:\d{2})\s*[—-]\s*(.+)$/);
+                return match ? { time: match[1], title: match[2].trim(), description: "" } : null;
+              })
+              .filter((s): s is { time: string; title: string; description: string } => s !== null);
+
+            if (steps.length === 0) return;
+
+            sessionStorage.setItem(
+              "activeBrewTimer",
+              JSON.stringify({
+                coffeeName: entry.title || "Untitled Recipe",
+                brewMethod: entry.brew_method || "Manual",
+                totalTime: entry.total_time || steps[steps.length - 1].time,
+                steps,
+              })
+            );
+            router.push("/brew/timer");
+          }}
+          className="-mx-4 sm:mx-0 bg-ink text-cream font-heading text-2xl sm:text-3xl font-extrabold uppercase tracking-tight px-4 sm:px-8 py-6 flex items-center justify-between hover:bg-[#2a2725] transition-colors"
+        >
+          Brew again
+          <span className="text-terracotta">→</span>
+        </button>
       )}
     </div>
   );

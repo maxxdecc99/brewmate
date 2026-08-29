@@ -74,9 +74,6 @@ export default function BrewTimerPage() {
       return totalSeconds > start ? totalSeconds : start + 30;
     });
   }, [stepStarts, totalSeconds]);
-  const effectiveTotal = stepEnds.length
-    ? Math.max(totalSeconds, stepEnds[stepEnds.length - 1])
-    : totalSeconds;
 
   if (notFound) {
     return (
@@ -95,8 +92,12 @@ export default function BrewTimerPage() {
 
   if (!brew) return null;
 
-  const finished = effectiveTotal > 0 && elapsed >= effectiveTotal;
-  const progress = effectiveTotal > 0 ? Math.min(1, elapsed / effectiveTotal) : 0;
+  // Derived purely from the steps' own end times -- never from the
+  // free-text total_time field alone -- so this can never disagree with
+  // (or override) what each individual step's own window says.
+  const finalEnd = stepEnds.length ? stepEnds[stepEnds.length - 1] : totalSeconds;
+  const finished = finalEnd > 0 && elapsed >= finalEnd;
+  const progress = finalEnd > 0 ? Math.min(1, elapsed / finalEnd) : 0;
 
   function handleFinish() {
     sessionStorage.removeItem("activeBrewTimer");
@@ -155,13 +156,17 @@ export default function BrewTimerPage() {
         {brew.steps.map((step, i) => {
           const start = stepStarts[i] ?? 0;
           const end = stepEnds[i] ?? start;
-          const isDone = !finished && elapsed >= end;
-          const isCurrent = !finished && elapsed >= start && elapsed < end;
+          // Purely a function of this step's own [start, end) window and the
+          // real elapsed seconds -- no global "finished" flag can override
+          // this, so a step can only ever say "Done" once its own end has
+          // actually passed.
+          const isDone = elapsed >= end;
+          const isCurrent = elapsed >= start && elapsed < end;
           return (
             <div key={i} className="flex gap-0">
               <div
                 className={`w-14 shrink-0 font-heading font-extrabold text-sm pt-1 ${
-                  isCurrent ? "text-terracotta" : isDone || finished ? "text-[#5C574F]" : "text-[#8D8880]"
+                  isCurrent ? "text-terracotta" : isDone ? "text-[#5C574F]" : "text-[#8D8880]"
                 }`}
               >
                 {step.time}
@@ -173,16 +178,25 @@ export default function BrewTimerPage() {
               >
                 {isCurrent ? (
                   <div className="bg-terracotta text-white p-4">
-                    <div className="font-heading text-xl font-extrabold tracking-tight">{step.title}</div>
+                    <div className="flex items-center gap-2">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/70" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                      </span>
+                      <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-white/85">
+                        Active
+                      </span>
+                    </div>
+                    <div className="mt-2 font-heading text-xl font-extrabold tracking-tight">{step.title}</div>
                     <p className="mt-2 text-sm text-white/90">{step.description}</p>
                   </div>
                 ) : (
                   <>
-                    <div className={`font-heading font-bold ${isDone || finished ? "text-[#5C574F]" : ""}`}>
+                    <div className={`font-heading font-bold ${isDone ? "text-[#5C574F]" : ""}`}>
                       {step.title}
                     </div>
-                    <p className={`mt-1.5 text-sm ${isDone || finished ? "text-[#4A453E]" : "text-[#8D8880]"}`}>
-                      {isDone || finished ? "Done" : step.description}
+                    <p className={`mt-1.5 text-sm ${isDone ? "text-[#4A453E]" : "text-[#8D8880]"}`}>
+                      {isDone ? "Done" : step.description}
                     </p>
                   </>
                 )}

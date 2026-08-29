@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
-import MobileMenu from "./MobileMenu";
 
 export default async function Navbar() {
   const supabase = await createClient();
@@ -19,9 +18,7 @@ export default async function Navbar() {
           GetYourBrew
         </Link>
 
-        <MobileMenu loggedIn={!!user} />
-
-        <div className="hidden md:flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
           {user ? (
             <>
               <Link

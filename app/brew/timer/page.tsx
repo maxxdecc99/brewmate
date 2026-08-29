@@ -64,6 +64,19 @@ export default function BrewTimerPage() {
     () => (brew ? parseTime(brew.totalTime) : 0),
     [brew]
   );
+  // Each step's end time is the next step's start time. The last step's end
+  // is the recipe's total time -- but if that's missing/bad data (<= the
+  // last step's own start), fall back to giving it a real, non-zero span
+  // instead of marking it "done" the instant it becomes current.
+  const stepEnds = useMemo(() => {
+    return stepStarts.map((start, i) => {
+      if (i < stepStarts.length - 1) return stepStarts[i + 1];
+      return totalSeconds > start ? totalSeconds : start + 30;
+    });
+  }, [stepStarts, totalSeconds]);
+  const effectiveTotal = stepEnds.length
+    ? Math.max(totalSeconds, stepEnds[stepEnds.length - 1])
+    : totalSeconds;
 
   if (notFound) {
     return (
@@ -82,20 +95,41 @@ export default function BrewTimerPage() {
 
   if (!brew) return null;
 
-  const currentIndex = stepStarts.reduce(
-    (acc, start, i) => (elapsed >= start ? i : acc),
-    0
-  );
-  const finished = elapsed >= totalSeconds && totalSeconds > 0;
-  const progress = totalSeconds > 0 ? Math.min(1, elapsed / totalSeconds) : 0;
+  const finished = effectiveTotal > 0 && elapsed >= effectiveTotal;
+  const progress = effectiveTotal > 0 ? Math.min(1, elapsed / effectiveTotal) : 0;
 
   function handleFinish() {
     sessionStorage.removeItem("activeBrewTimer");
     router.push("/log");
   }
 
+  function handleReset() {
+    if (!window.confirm("Are you sure? This will restart your brew.")) return;
+    setElapsed(0);
+  }
+
   return (
     <div className="-mx-4 sm:mx-0 -mt-10 sm:mt-0 min-h-[calc(100vh-8rem)] bg-ink text-cream flex flex-col">
+      <div className="sticky top-0 z-30 bg-ink/95 backdrop-blur border-b border-cream/20 px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+        <span className="font-heading text-2xl font-extrabold tracking-tight tabular-nums">
+          {formatTime(elapsed)}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setRunning((r) => !r)}
+            className="font-heading font-extrabold text-xs uppercase tracking-[.16em] border border-cream/40 px-4 py-2 hover:bg-white/10 transition-colors"
+          >
+            {running ? "Pause" : "Resume"}
+          </button>
+          <button
+            onClick={handleReset}
+            className="font-heading font-extrabold text-xs uppercase tracking-[.16em] border border-cream/40 px-4 py-2 hover:bg-white/10 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
       <div className="px-4 sm:px-8 py-8 flex items-start justify-between gap-4">
         <div>
           <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880]">
@@ -119,13 +153,15 @@ export default function BrewTimerPage() {
 
       <div className="px-4 sm:px-8 py-8 flex flex-col flex-1">
         {brew.steps.map((step, i) => {
-          const isCurrent = i === currentIndex && !finished;
-          const isDone = i < currentIndex || finished;
+          const start = stepStarts[i] ?? 0;
+          const end = stepEnds[i] ?? start;
+          const isDone = !finished && elapsed >= end;
+          const isCurrent = !finished && elapsed >= start && elapsed < end;
           return (
             <div key={i} className="flex gap-0">
               <div
                 className={`w-14 shrink-0 font-heading font-extrabold text-sm pt-1 ${
-                  isCurrent ? "text-terracotta" : isDone ? "text-[#5C574F]" : "text-[#8D8880]"
+                  isCurrent ? "text-terracotta" : isDone || finished ? "text-[#5C574F]" : "text-[#8D8880]"
                 }`}
               >
                 {step.time}
@@ -136,15 +172,17 @@ export default function BrewTimerPage() {
                 }`}
               >
                 {isCurrent ? (
-                  <div className="bg-terracotta text-white p-4 -ml-0.5">
+                  <div className="bg-terracotta text-white p-4">
                     <div className="font-heading text-xl font-extrabold tracking-tight">{step.title}</div>
                     <p className="mt-2 text-sm text-white/90">{step.description}</p>
                   </div>
                 ) : (
                   <>
-                    <div className={`font-heading font-bold ${isDone ? "text-[#5C574F]" : ""}`}>{step.title}</div>
-                    <p className={`mt-1.5 text-sm ${isDone ? "text-[#4A453E]" : "text-[#8D8880]"}`}>
-                      {isDone ? "Done" : step.description}
+                    <div className={`font-heading font-bold ${isDone || finished ? "text-[#5C574F]" : ""}`}>
+                      {step.title}
+                    </div>
+                    <p className={`mt-1.5 text-sm ${isDone || finished ? "text-[#4A453E]" : "text-[#8D8880]"}`}>
+                      {isDone || finished ? "Done" : step.description}
                     </p>
                   </>
                 )}

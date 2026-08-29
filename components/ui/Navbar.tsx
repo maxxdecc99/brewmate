@@ -18,7 +18,11 @@ export default async function Navbar() {
           GetYourBrew
         </Link>
 
-        <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-end">
+        <div
+          className={`items-center gap-1 sm:gap-2 flex-wrap justify-end ${
+            user ? "hidden md:flex" : "flex"
+          }`}
+        >
           {user ? (
             <>
               <Link

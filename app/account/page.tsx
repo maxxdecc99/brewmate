@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { getRecipes } from "@/lib/recipes";
+import { capture } from "@/lib/posthog";
 import Spinner from "@/components/ui/Spinner";
 import LogoutButton from "@/components/ui/LogoutButton";
 
@@ -139,6 +140,7 @@ function AccountContent() {
               </p>
               <Link
                 href="/pricing"
+                onClick={() => capture("upgrade_clicked")}
                 className="mt-5 bg-terracotta text-white px-4 py-4 flex items-center justify-between font-heading text-xs font-bold uppercase tracking-[.2em] hover:bg-[#dd2b0f] transition-colors"
               >
                 Upgrade to Brew+

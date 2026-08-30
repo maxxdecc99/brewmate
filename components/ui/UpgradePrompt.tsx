@@ -3,6 +3,7 @@
 import { Fragment, useState } from "react";
 import Link from "next/link";
 import { SUBSCRIPTION_PLANS, type PlanId } from "@/lib/subscriptionPlans";
+import { capture } from "@/lib/posthog";
 import Spinner from "./Spinner";
 
 const COPY: Record<
@@ -32,6 +33,7 @@ export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_l
   const [purchasing, setPurchasing] = useState<PlanId | null>(null);
 
   async function handleChoosePlan(planId: PlanId) {
+    capture("upgrade_clicked");
     setPurchasing(planId);
     try {
       const res = await fetch("/api/create-subscription-checkout", {

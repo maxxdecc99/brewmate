@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { saveManualRecipe, isLogLimitError } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
+import { capture } from "@/lib/posthog";
 import Spinner from "@/components/ui/Spinner";
 import UpgradePrompt from "@/components/ui/UpgradePrompt";
 import { Label, Input, Select, Textarea } from "@/components/ui/FormField";
@@ -60,6 +61,7 @@ export default function AddRecipePage() {
         totalTime: totalTime.trim() || undefined,
         userNotes: notes.trim() || undefined,
       });
+      capture("recipe_saved");
       router.push("/log");
     } catch (err) {
       // isLogLimitError is the authoritative check here (race: canSave was

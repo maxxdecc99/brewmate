@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { capture, identify } from "@/lib/posthog";
 import { isPasswordValid, getPasswordErrors } from "@/lib/passwordValidation";
 import PasswordChecklist from "@/components/ui/PasswordChecklist";
 import { Label, Input } from "@/components/ui/FormField";
@@ -50,6 +51,11 @@ export default function RegisterPage() {
       setIsDuplicate(true);
       setLoading(false);
       return;
+    }
+
+    capture("user_signed_up");
+    if (data.user) {
+      identify(data.user.id, { email: data.user.email, plan: "free" });
     }
 
     if (!data.session) {

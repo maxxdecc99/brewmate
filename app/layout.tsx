@@ -3,6 +3,7 @@ import { Archivo } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/ui/Navbar";
 import MobileTabBar from "@/components/ui/MobileTabBar";
+import PostHogProvider from "@/components/providers/PostHogProvider";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body
         className={`${archivo.variable} font-sans bg-cream text-ink min-h-screen`}
       >
-        <Navbar />
-        <main className="max-w-4xl mx-auto px-4 py-10 pb-24 sm:pb-10">{children}</main>
-        <MobileTabBar />
+        <PostHogProvider>
+          <Navbar />
+          <main className="max-w-4xl mx-auto px-4 py-10 pb-24 sm:pb-10">{children}</main>
+          <MobileTabBar />
+        </PostHogProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { capture } from "@/lib/posthog";
 import { isPasswordValid, getPasswordErrors } from "@/lib/passwordValidation";
 import PasswordChecklist from "@/components/ui/PasswordChecklist";
 import Spinner from "@/components/ui/Spinner";
@@ -247,6 +248,7 @@ export default function SettingsPage() {
             </div>
             <Link
               href="/pricing"
+              onClick={() => capture("upgrade_clicked")}
               className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] transition-colors"
             >
               Subscribe to keep Brew+ →
@@ -262,6 +264,7 @@ export default function SettingsPage() {
             </div>
             <Link
               href="/pricing"
+              onClick={() => capture("upgrade_clicked")}
               className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] transition-colors"
             >
               Upgrade to Brew+ →

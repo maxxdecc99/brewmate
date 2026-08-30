@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { stripe, PRICE_ID_TO_PLAN } from "@/lib/stripe";
 import { createServiceClient } from "@/lib/supabase/server";
+import { captureServerEvent } from "@/lib/posthog-server";
 
 // current_period_end lives per-item on this Stripe API version, not on the
 // top-level Subscription object.
@@ -70,14 +71,39 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", session.metadata.user_id);
         if (error) console.error("Webhook: failed to persist customer/subscription id:", error);
+
+        if (session.subscription) {
+          const sub = await stripe.subscriptions.retrieve(session.subscription as string);
+          const priceId = sub.items.data[0]?.price.id;
+          const planKey = priceId ? PRICE_ID_TO_PLAN[priceId] ?? null : null;
+          await captureServerEvent("subscription_started", session.metadata.user_id, {
+            plan: planKey,
+          });
+        }
       }
       break;
     }
 
     case "customer.subscription.created":
-    case "customer.subscription.updated":
       await syncFromSubscription(event.data.object as Stripe.Subscription);
       break;
+
+    case "customer.subscription.updated": {
+      const sub = event.data.object as Stripe.Subscription;
+      await syncFromSubscription(sub);
+
+      // Fires once, at the moment cancellation is scheduled (Stripe portal
+      // cancel-at-period-end), not on every subsequent webhook while it
+      // stays true.
+      const previous = event.data.previous_attributes as
+        | Partial<Stripe.Subscription>
+        | undefined;
+      if (sub.cancel_at_period_end && previous?.cancel_at_period_end === false) {
+        const userId = sub.metadata?.user_id;
+        if (userId) await captureServerEvent("subscription_cancelled", userId);
+      }
+      break;
+    }
 
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
@@ -94,6 +120,13 @@ export async function POST(req: NextRequest) {
           })
           .eq("id", userId);
         if (error) console.error("Webhook: failed to clear subscription on delete:", error);
+
+        // Only fire here for an immediate cancellation — one that was
+        // already scheduled via cancel_at_period_end was already captured
+        // in the "updated" handler above.
+        if (!sub.cancel_at_period_end) {
+          await captureServerEvent("subscription_cancelled", userId);
+        }
       }
       break;
     }

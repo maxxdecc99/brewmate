@@ -4,6 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { identify } from "@/lib/posthog";
 import { Label, Input } from "@/components/ui/FormField";
 
 function LoginForm() {
@@ -26,7 +27,7 @@ function LoginForm() {
     setResendState("idle");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       const isUnconfirmed =
@@ -41,6 +42,18 @@ function LoginForm() {
       }
       setLoading(false);
       return;
+    }
+
+    if (data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("subscription_tier")
+        .eq("id", data.user.id)
+        .single();
+      identify(data.user.id, {
+        email: data.user.email,
+        plan: profile?.subscription_tier ?? "free",
+      });
     }
 
     router.push(next);

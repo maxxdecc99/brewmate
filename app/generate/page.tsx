@@ -12,6 +12,7 @@ import {
 } from "@/types";
 import { saveAIRecipe, isLogLimitError } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
+import { capture } from "@/lib/posthog";
 import RecipeCard from "@/components/ui/RecipeCard";
 import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
@@ -258,6 +259,11 @@ export default function GeneratePage() {
         return;
       }
 
+      capture("recipe_generated", {
+        brew_method: input.brewMethod,
+        roaster: input.roaster,
+      });
+
       // Let the overlay actually show its 100%-and-checked completion beat
       // before swapping to the result view, instead of vanishing instantly.
       setGenerationDone(true);
@@ -280,6 +286,7 @@ export default function GeneratePage() {
     setSaveLimitReached(false);
     try {
       await saveAIRecipe(recipe, input, rating, userNotes);
+      capture("recipe_saved");
       setSaved(true);
     } catch (err) {
       if (isLogLimitError(err)) {

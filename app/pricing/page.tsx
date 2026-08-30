@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { SUBSCRIPTION_PLANS, type PlanId } from "@/lib/subscriptionPlans";
+import { capture } from "@/lib/posthog";
 import Spinner from "@/components/ui/Spinner";
 
 const FEATURES: { label: string; free: string; brewPlus: string }[] = [
@@ -59,6 +60,7 @@ export default function PricingPage() {
   }, []);
 
   async function handleChoosePlan(planId: PlanId) {
+    capture("upgrade_clicked");
     if (!loggedIn) {
       window.location.href = "/auth/login?next=/pricing";
       return;

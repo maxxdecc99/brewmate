@@ -181,7 +181,7 @@ function Waitlist() {
       {/* Recipe preview */}
       <section className="flex flex-col gap-4 px-4 sm:px-0">
         <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
-          /// A recipe, not folklore
+          /// A recipe, not noise
         </span>
         <div className="border-2 border-ink">
           <div className="bg-ink text-cream px-4 sm:px-6 py-5 flex flex-wrap gap-3 items-center justify-between">

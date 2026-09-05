@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
 
@@ -7,6 +8,11 @@ export default async function Navbar() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  // The logged-out homepage is the standalone waitlist page — it has its
+  // own CTA, so the regular nav links are redundant clutter on mobile.
+  const isWaitlist = pathname === "/" && !user;
 
   return (
     <nav className="bg-cream border-b-2 border-ink">
@@ -20,7 +26,7 @@ export default async function Navbar() {
 
         <div
           className={`items-center gap-1 sm:gap-2 flex-wrap justify-end ${
-            user ? "hidden md:flex" : "flex"
+            isWaitlist ? "hidden sm:flex" : user ? "hidden md:flex" : "flex"
           }`}
         >
           {user ? (

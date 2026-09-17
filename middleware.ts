@@ -5,6 +5,22 @@ const PROTECTED = ["/generate", "/log", "/account", "/admin", "/settings"];
 const AUTH_PAGES = ["/auth/login", "/auth/register"];
 
 export async function middleware(request: NextRequest) {
+  // Supabase auth emails (password recovery, signup confirmation, ...) are
+  // sent to /auth/callback, but if the project's Site URL/redirect allow
+  // list ever falls back to "/", the verified `code` (and `type`) still
+  // arrive there instead. Forward them to the real callback handler rather
+  // than letting the homepage render — this keeps the auth flow correct
+  // regardless of what "/" currently shows (waitlist, dashboard, etc).
+  const authCode = request.nextUrl.searchParams.get("code");
+  if (request.nextUrl.pathname === "/" && authCode) {
+    const type = request.nextUrl.searchParams.get("type");
+    const next = type === "recovery" ? "/auth/reset-password" : "/generate";
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    url.searchParams.set("next", next);
+    return NextResponse.redirect(url);
+  }
+
   // Exposed to server components (e.g. Navbar) via headers() from
   // "next/headers", since layouts have no other way to see the current path.
   const requestHeaders = new Headers(request.headers);

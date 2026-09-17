@@ -22,7 +22,12 @@ export default function ForgotPasswordPage() {
     });
 
     if (error) {
-      setError("Something went wrong. Please try again.");
+      console.error("resetPasswordForEmail failed:", error);
+      if (error.status === 429) {
+        setError("Too many reset emails requested. Please wait a few minutes before trying again.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
       setLoading(false);
       return;
     }

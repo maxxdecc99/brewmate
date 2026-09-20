@@ -28,7 +28,22 @@ export default function MobileTabBar() {
 
   useEffect(() => {
     const supabase = createClient();
+
+    // Initial check for first render — avoids a flash of the wrong tab set
+    // before the listener below fires. But this component lives in the
+    // root layout, which persists across client-side navigation (it isn't
+    // remounted on login/logout unless the whole page hard-reloads), so a
+    // one-shot check alone goes stale the moment auth state changes without
+    // a full reload. onAuthStateChange keeps it in sync from then on.
     supabase.auth.getUser().then(({ data: { user } }) => setLoggedIn(!!user));
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setLoggedIn(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   if (loggedIn === null) return null;

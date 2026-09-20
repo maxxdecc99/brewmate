@@ -38,6 +38,14 @@ export default function PricingPage() {
   // applies on the very next render, same as any normal client update.
   const [mounted, setMounted] = useState(false);
 
+  // Confirmed logged-out (not just defaulted) — mirrors the mounted-gating
+  // above and hasRealSubscription's own gating below, so this never flips
+  // before/after hydration, and never fires during the brief window right
+  // after mount where `loggedIn` still holds its default `false` but
+  // checkingAuth hasn't resolved yet (which would otherwise flash "Sign Up
+  // to Subscribe" at logged-in users for an instant).
+  const showLoggedOutCTA = mounted && !checkingAuth && !loggedIn;
+
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -130,7 +138,7 @@ export default function PricingPage() {
           checkout session. Gated the same way as those buttons themselves,
           via `mounted && hasRealSubscription`, so it never flips visibility
           before/after hydration. */}
-      {!(mounted && hasRealSubscription) && (
+      {!(mounted && hasRealSubscription) && !showLoggedOutCTA && (
         <ConsentCheckbox checked={consentChecked} onChange={setConsentChecked} />
       )}
 
@@ -183,6 +191,13 @@ export default function PricingPage() {
                   {portalLoading ? "Redirecting…" : "Switch plan →"}
                 </button>
               )
+            ) : showLoggedOutCTA ? (
+              <Link
+                href="/auth/register?next=/pricing"
+                className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide py-3 px-6 hover:bg-[#dd2b0f] transition-colors inline-flex items-center justify-center gap-2 shrink-0"
+              >
+                Sign Up to Subscribe →
+              </Link>
             ) : (
               <button
                 onClick={() => handleChoosePlan(plan.id)}

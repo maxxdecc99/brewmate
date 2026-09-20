@@ -27,23 +27,30 @@ export async function getRecipeById(id: string): Promise<RecipeRow | null> {
   return (data as RecipeRow) ?? null;
 }
 
+// Called automatically as soon as a recipe is generated (see
+// app/generate/page.tsx) — there's no longer a manual "Save" step on that
+// page, so rating/notes aren't known yet at insert time. They're filled in
+// later, post-brew, via updateRecipe's brewed_at/rating/user_notes update.
 export async function saveAIRecipe(
   recipe: GeneratedRecipe,
-  input: CoffeeInput,
-  rating: number,
-  userNotes: string
-): Promise<void> {
+  input: CoffeeInput
+): Promise<string> {
   const supabase = createClient();
-  const { error } = await supabase.from("recipes").insert({
-    source: "ai",
-    title: recipe.coffeeName,
-    brew_method: recipe.brewMethod,
-    input_data: input,
-    recipe_data: recipe,
-    rating,
-    user_notes: userNotes,
-  });
+  const { data, error } = await supabase
+    .from("recipes")
+    .insert({
+      source: "ai",
+      title: recipe.coffeeName,
+      brew_method: recipe.brewMethod,
+      input_data: input,
+      recipe_data: recipe,
+      rating: 0,
+      user_notes: "",
+    })
+    .select("id")
+    .single();
   if (error) throw error;
+  return data.id;
 }
 
 export async function saveManualRecipe(params: {
@@ -90,6 +97,7 @@ export async function updateRecipe(
     bloom?: string | null;
     brew_steps?: string | null;
     total_time?: string | null;
+    brewed_at?: string;
   }
 ): Promise<void> {
   const supabase = createClient();

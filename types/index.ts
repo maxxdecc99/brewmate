@@ -83,6 +83,7 @@ export interface RecipeRow {
   rating: number;
   user_notes: string;
   created_at: string;
+  brewed_at: string | null;
 }
 
 export interface ManualRecipe {

@@ -2,14 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { RecipeStep } from "@/types";
-
-interface ActiveBrew {
-  coffeeName: string;
-  brewMethod: string;
-  totalTime: string;
-  steps: RecipeStep[];
-}
+import { RecipeRow } from "@/types";
+import { getRecipeById, updateRecipe } from "@/lib/recipes";
+import StarRating from "@/components/ui/StarRating";
+import Spinner from "@/components/ui/Spinner";
+import { Label, Textarea } from "@/components/ui/FormField";
 
 function parseTime(t: string): number {
   const parts = t.split(":").map((p) => parseInt(p, 10) || 0);
@@ -25,44 +22,136 @@ function formatTime(totalSeconds: number): string {
   return `${m}:${String(sec).padStart(2, "0")}`;
 }
 
+// Rating + notes, shown after "Finish" instead of navigating straight away —
+// the recipe row already exists (auto-saved back on /generate), so this is
+// an update, not an insert. Kept page-local (not in components/ui) since
+// it's only ever used from this one flow, same as GeneratingOverlay on the
+// generate page.
+function FinishStep({ row, onDone }: { row: RecipeRow; onDone: () => void }) {
+  const [rating, setRating] = useState(0);
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function finish(withFeedback: boolean) {
+    setSaving(true);
+    setError(null);
+    try {
+      await updateRecipe(row.id, {
+        ...(withFeedback ? { rating, user_notes: notes } : {}),
+        brewed_at: new Date().toISOString(),
+      });
+      sessionStorage.removeItem("activeBrewRecipeId");
+      onDone();
+    } catch (err) {
+      console.error(err);
+      setError("Couldn't save. Please try again.");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="max-w-lg mx-auto flex flex-col gap-8 py-4">
+      <div className="flex flex-col gap-2 border-b-2 border-ink pb-6">
+        <span className="font-heading text-xs font-bold uppercase tracking-widest text-terracotta">
+          /// Brew complete
+        </span>
+        <h1 className="font-heading text-4xl font-extrabold uppercase tracking-tight text-ink">
+          How was it?
+        </h1>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label>Your Rating (optional)</Label>
+        <StarRating value={rating} onChange={setRating} />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <Label>Notes (optional)</Label>
+        <Textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="How did it taste? What would you change?"
+          rows={3}
+        />
+      </div>
+
+      {error && (
+        <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
+          {error}
+        </div>
+      )}
+
+      <div className="flex items-center gap-5 flex-wrap">
+        <button
+          onClick={() => finish(true)}
+          disabled={saving}
+          className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+        >
+          {saving && <Spinner />}
+          Save & Finish →
+        </button>
+        <button
+          onClick={() => finish(false)}
+          disabled={saving}
+          className="font-heading font-bold uppercase tracking-wide text-muted hover:text-ink disabled:opacity-50 transition-colors text-sm"
+        >
+          Skip
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function BrewTimerPage() {
   const router = useRouter();
-  const [brew, setBrew] = useState<ActiveBrew | null>(null);
+  const [loadState, setLoadState] = useState<"loading" | "ready" | "not-found">("loading");
+  const [row, setRow] = useState<RecipeRow | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [running, setRunning] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [phase, setPhase] = useState<"brewing" | "finish">("brewing");
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const raw = sessionStorage.getItem("activeBrewTimer");
-    if (!raw) {
-      setNotFound(true);
+    const id = sessionStorage.getItem("activeBrewRecipeId");
+    if (!id) {
+      setLoadState("not-found");
       return;
     }
-    try {
-      setBrew(JSON.parse(raw));
-    } catch {
-      setNotFound(true);
-    }
+    getRecipeById(id)
+      .then((r) => {
+        // This flow only makes sense for an AI-generated recipe with actual
+        // step data — anything else (missing row, RLS denial, a manual
+        // recipe id somehow ending up here) is treated the same way.
+        if (!r || r.source !== "ai" || !r.recipe_data) {
+          setLoadState("not-found");
+          return;
+        }
+        setRow(r);
+        setLoadState("ready");
+      })
+      .catch(() => setLoadState("not-found"));
   }, []);
 
+  const recipe = row?.source === "ai" ? row.recipe_data : null;
+
   useEffect(() => {
-    if (!running || !brew) return;
+    if (!running || !recipe || phase !== "brewing") return;
     intervalRef.current = setInterval(() => {
       setElapsed((e) => e + 1);
     }, 1000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [running, brew]);
+  }, [running, recipe, phase]);
 
   const stepStarts = useMemo(
-    () => brew?.steps.map((s) => parseTime(s.time)) ?? [],
-    [brew]
+    () => recipe?.steps.map((s) => parseTime(s.time)) ?? [],
+    [recipe]
   );
   const totalSeconds = useMemo(
-    () => (brew ? parseTime(brew.totalTime) : 0),
-    [brew]
+    () => (recipe ? parseTime(recipe.totalTime) : 0),
+    [recipe]
   );
   // Each step's end time is the next step's start time. The last step's end
   // is the recipe's total time -- but if that's missing/bad data (<= the
@@ -75,11 +164,21 @@ export default function BrewTimerPage() {
     });
   }, [stepStarts, totalSeconds]);
 
-  if (notFound) {
+  if (loadState === "loading") {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Spinner className="h-8 w-8 text-muted" />
+      </div>
+    );
+  }
+
+  if (loadState === "not-found") {
     return (
       <div className="flex flex-col items-center gap-6 py-24 text-center">
         <p className="font-heading text-2xl font-bold uppercase text-ink">No active brew</p>
-        <p className="text-muted">Start a timer from a recipe result or a saved brew.</p>
+        <p className="text-muted">
+          We couldn&apos;t find that brew. Start one from a recipe result on the Generate page.
+        </p>
         <button
           onClick={() => router.push("/generate")}
           className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#dd2b0f] transition-colors"
@@ -90,7 +189,11 @@ export default function BrewTimerPage() {
     );
   }
 
-  if (!brew) return null;
+  if (!row || !recipe) return null;
+
+  if (phase === "finish") {
+    return <FinishStep row={row} onDone={() => router.push("/log")} />;
+  }
 
   // Derived purely from the steps' own end times -- never from the
   // free-text total_time field alone -- so this can never disagree with
@@ -100,8 +203,8 @@ export default function BrewTimerPage() {
   const progress = finalEnd > 0 ? Math.min(1, elapsed / finalEnd) : 0;
 
   function handleFinish() {
-    sessionStorage.removeItem("activeBrewTimer");
-    router.push("/log");
+    setRunning(false);
+    setPhase("finish");
   }
 
   function handleReset() {
@@ -134,13 +237,13 @@ export default function BrewTimerPage() {
       <div className="px-4 sm:px-8 py-8 flex items-start justify-between gap-4">
         <div>
           <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880]">
-            {finished ? "Brew complete" : "Brewing"} · {brew.coffeeName} · {brew.brewMethod}
+            {finished ? "Brew complete" : "Brewing"} · {recipe.coffeeName} · {recipe.brewMethod}
           </span>
           <div className="mt-4 font-heading text-6xl sm:text-8xl font-extrabold tracking-tight leading-[0.86]">
             {formatTime(elapsed)}
           </div>
           <span className="mt-2 block font-heading text-[10px] font-bold uppercase tracking-[.2em] text-[#8D8880]">
-            Of {brew.totalTime} total
+            Of {recipe.totalTime} total
           </span>
         </div>
       </div>
@@ -153,7 +256,7 @@ export default function BrewTimerPage() {
       </div>
 
       <div className="px-4 sm:px-8 py-8 flex flex-col flex-1">
-        {brew.steps.map((step, i) => {
+        {recipe.steps.map((step, i) => {
           const start = stepStarts[i] ?? 0;
           const end = stepEnds[i] ?? start;
           // Purely a function of this step's own [start, end) window and the

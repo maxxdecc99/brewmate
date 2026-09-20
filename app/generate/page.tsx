@@ -10,14 +10,13 @@ import {
   BurrType,
   GeneratedRecipe,
 } from "@/types";
-import { saveAIRecipe, isLogLimitError } from "@/lib/recipes";
+import { saveAIRecipe } from "@/lib/recipes";
 import { createClient } from "@/lib/supabase/client";
 import { capture } from "@/lib/posthog";
 import RecipeCard from "@/components/ui/RecipeCard";
-import StarRating from "@/components/ui/StarRating";
 import Spinner from "@/components/ui/Spinner";
 import UpgradePrompt from "@/components/ui/UpgradePrompt";
-import { Label, Input, Select, Textarea } from "@/components/ui/FormField";
+import { Label, Input, Select } from "@/components/ui/FormField";
 
 const BREW_METHODS: BrewMethod[] = [
   "V60",
@@ -202,12 +201,12 @@ export default function GeneratePage() {
   const [loading, setLoading] = useState(false);
   const [generationDone, setGenerationDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rating, setRating] = useState(0);
-  const [userNotes, setUserNotes] = useState("");
-  const [saved, setSaved] = useState(false);
-  const [saveLoading, setSaveLoading] = useState(false);
+  // Saving now happens automatically as soon as generation succeeds (see
+  // handleGenerate) — there's no manual "Save" step on this page anymore.
+  // Rating/notes are collected later, post-brew, on the timer's finish step.
+  const [saving, setSaving] = useState(false);
+  const [savedRecipeId, setSavedRecipeId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveLimitReached, setSaveLimitReached] = useState(false);
   const [entitled, setEntitled] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -230,12 +229,29 @@ export default function GeneratePage() {
     setInput((prev) => ({ ...prev, [key]: value }));
   }
 
+  async function attemptSave(recipeToSave: GeneratedRecipe, inputToSave: CoffeeInput) {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const id = await saveAIRecipe(recipeToSave, inputToSave);
+      setSavedRecipeId(id);
+      capture("recipe_saved");
+    } catch (err) {
+      console.error(err);
+      setSaveError("Couldn't save this recipe to your Brew Log.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleGenerate(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setGenerationDone(false);
     setError(null);
     setRecipe(null);
+    setSavedRecipeId(null);
+    setSaveError(null);
 
     try {
       const res = await fetch("/api/generate-recipe", {
@@ -272,6 +288,11 @@ export default function GeneratePage() {
       router.refresh();
       setRecipe(data.recipe);
       setView("result");
+
+      // Auto-save immediately — no user action required. The brew-timer
+      // hand-off needs a real row id, and there's no other save step left
+      // on this page to fall back on.
+      attemptSave(data.recipe, input);
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -279,32 +300,12 @@ export default function GeneratePage() {
     }
   }
 
-  async function handleSave() {
-    if (!recipe) return;
-    setSaveLoading(true);
-    setSaveError(null);
-    setSaveLimitReached(false);
-    try {
-      await saveAIRecipe(recipe, input, rating, userNotes);
-      capture("recipe_saved");
-      setSaved(true);
-    } catch (err) {
-      if (isLogLimitError(err)) {
-        setSaveLimitReached(true);
-      } else {
-        setSaveError("Failed to save recipe. Please try again.");
-      }
-    } finally {
-      setSaveLoading(false);
-    }
-  }
-
   function handleNewRecipe() {
     setView("form");
     setRecipe(null);
-    setRating(0);
-    setUserNotes("");
-    setSaved(false);
+    setSaving(false);
+    setSavedRecipeId(null);
+    setSaveError(null);
     setError(null);
   }
 
@@ -409,23 +410,32 @@ export default function GeneratePage() {
               </div>
             ))}
           </div>
-          <button
-            onClick={() => {
-              sessionStorage.setItem(
-                "activeBrewTimer",
-                JSON.stringify({
-                  coffeeName: recipe.coffeeName,
-                  brewMethod: recipe.brewMethod,
-                  totalTime: recipe.totalTime,
-                  steps: recipe.steps,
-                })
-              );
-              router.push("/brew/timer");
-            }}
-            className="font-heading self-start mt-2 bg-ink text-cream font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#2a2725] transition-colors inline-flex items-center gap-2"
-          >
-            Start Brew Timer →
-          </button>
+          {saveError && !saving && !savedRecipeId ? (
+            <div className="flex flex-col gap-3 self-start mt-2">
+              <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
+                {saveError}
+              </div>
+              <button
+                onClick={() => attemptSave(recipe, input)}
+                className="font-heading self-start bg-ink text-cream font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#2a2725] transition-colors"
+              >
+                Retry Save
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => {
+                if (!savedRecipeId) return;
+                sessionStorage.setItem("activeBrewRecipeId", savedRecipeId);
+                router.push("/brew/timer");
+              }}
+              disabled={saving || !savedRecipeId}
+              className="font-heading self-start mt-2 bg-ink text-cream font-bold uppercase tracking-wide px-6 py-3 hover:bg-[#2a2725] disabled:opacity-50 disabled:cursor-not-allowed transition-colors inline-flex items-center gap-2"
+            >
+              {saving && <Spinner />}
+              {saving ? "Saving…" : "Start Brew Timer →"}
+            </button>
+          )}
         </div>
 
         {/* Adjustment tips */}
@@ -453,54 +463,6 @@ export default function GeneratePage() {
             <p className="text-espresso/80 text-sm leading-relaxed">{recipe.notes}</p>
           </div>
         )}
-
-        {/* Save to brew log */}
-        <div className="border-t-2 border-ink pt-8 flex flex-col gap-5">
-          <h2 className="font-heading font-extrabold text-xl text-ink uppercase tracking-wide">
-            Save to Brew Log
-          </h2>
-          <div className="flex flex-col gap-2">
-            <Label>Your Rating</Label>
-            <StarRating value={rating} onChange={setRating} />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label>Notes (optional)</Label>
-            <Textarea
-              value={userNotes}
-              onChange={(e) => setUserNotes(e.target.value)}
-              placeholder="How did it taste? What would you change?"
-              rows={3}
-            />
-          </div>
-          {saved ? (
-            <div className="flex items-center gap-4">
-              <span className="font-heading font-bold uppercase text-terracotta">Saved to Brew Log ✓</span>
-              <button
-                onClick={() => router.push("/log")}
-                className="font-bold text-ink/70 underline underline-offset-2 hover:text-ink"
-              >
-                View Log →
-              </button>
-            </div>
-          ) : saveLimitReached ? (
-            <UpgradePrompt reason="log_limit" />
-          ) : (
-            <div className="flex flex-col gap-3">
-              {saveError && (
-                <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
-                  {saveError}
-                </div>
-              )}
-              <button
-                onClick={handleSave}
-                disabled={saveLoading}
-                className="font-heading self-start bg-terracotta text-white font-bold uppercase tracking-wide px-8 py-3 hover:bg-[#dd2b0f] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {saveLoading ? "Saving…" : "Save Recipe"}
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     );
   }

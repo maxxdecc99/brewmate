@@ -183,15 +183,7 @@ export default function SavedRecipeDetail() {
 
       <button
         onClick={() => {
-          sessionStorage.setItem(
-            "activeBrewTimer",
-            JSON.stringify({
-              coffeeName: recipe.coffeeName,
-              brewMethod: recipe.brewMethod,
-              totalTime: recipe.totalTime,
-              steps: recipe.steps,
-            })
-          );
+          sessionStorage.setItem("activeBrewRecipeId", entry.id);
           router.push("/brew/timer");
         }}
         className="-mx-4 sm:mx-0 bg-ink text-cream font-heading text-2xl sm:text-3xl font-extrabold uppercase tracking-tight px-4 sm:px-8 py-6 flex items-center justify-between hover:bg-[#2a2725] transition-colors"

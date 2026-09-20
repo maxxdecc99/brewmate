@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SUBSCRIPTION_PLANS, type PlanId } from "@/lib/subscriptionPlans";
 import { capture } from "@/lib/posthog";
 import Spinner from "./Spinner";
+import ConsentCheckbox from "./ConsentCheckbox";
 
 const COPY: Record<
   "ai_locked" | "log_limit",
@@ -31,6 +32,7 @@ const FEATURES: { label: string; free: string; brewPlus: string }[] = [
 export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_limit" }) {
   const { eyebrow, title, body } = COPY[reason];
   const [purchasing, setPurchasing] = useState<PlanId | null>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   async function handleChoosePlan(planId: PlanId) {
     capture("upgrade_clicked");
@@ -39,7 +41,7 @@ export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_l
       const res = await fetch("/api/create-subscription-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId }),
+        body: JSON.stringify({ plan: planId, consent: consentChecked }),
       });
       const { url, error } = await res.json();
       if (error) throw new Error(error);
@@ -56,6 +58,10 @@ export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_l
         <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-white/80">{eyebrow}</span>
         <h2 className="font-heading text-3xl sm:text-4xl font-extrabold uppercase tracking-tight leading-[0.95]">{title}</h2>
         <p className="text-white/90 font-medium">{body}</p>
+      </div>
+
+      <div className="px-4 sm:px-8 py-5 border-x border-line sm:border-x-0 border-b border-line">
+        <ConsentCheckbox checked={consentChecked} onChange={setConsentChecked} />
       </div>
 
       <div className="border-x border-line sm:border-x-0">
@@ -86,7 +92,7 @@ export default function UpgradePrompt({ reason }: { reason: "ai_locked" | "log_l
             </div>
             <button
               onClick={() => handleChoosePlan(plan.id)}
-              disabled={purchasing !== null}
+              disabled={purchasing !== null || !consentChecked}
               className={`shrink-0 font-heading text-[10px] font-bold uppercase tracking-[.16em] px-4 py-3.5 transition-colors inline-flex items-center gap-2 disabled:opacity-50 ${
                 plan.badge ? "bg-terracotta text-white hover:bg-[#dd2b0f]" : "border-2 border-ink hover:bg-ink hover:text-cream"
               }`}

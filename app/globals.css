@@ -35,3 +35,101 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* Prose styling for the legal pages (app/legal/**) — plain semantic HTML
+   (h2/h3/p/ul/table) rendered inside a `.legal-content` wrapper, since
+   these are long static documents and don't fit the site's usual
+   hand-styled-per-element components. No @tailwindcss/typography plugin
+   is installed, so this is a small hand-rolled equivalent using the
+   site's existing color tokens. */
+.legal-content h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--color-ink);
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+}
+
+.legal-content h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.legal-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-espresso);
+}
+
+.legal-content p {
+  margin-bottom: 1rem;
+  color: var(--color-ink);
+  line-height: 1.7;
+}
+
+.legal-content ul,
+.legal-content ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 0 1rem 1.25rem;
+  color: var(--color-ink);
+  line-height: 1.6;
+}
+
+.legal-content ul {
+  list-style: disc;
+}
+
+.legal-content ol {
+  list-style: decimal;
+}
+
+.legal-content strong {
+  font-weight: 700;
+  color: var(--color-espresso);
+}
+
+.legal-content a {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+
+.legal-content a:hover {
+  color: var(--color-terracotta);
+}
+
+.legal-content table {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: 2px solid var(--color-ink);
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.legal-content th,
+.legal-content td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--color-line);
+  text-align: left;
+}
+
+.legal-content th {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}

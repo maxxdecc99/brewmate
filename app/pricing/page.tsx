@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { SUBSCRIPTION_PLANS, type PlanId } from "@/lib/subscriptionPlans";
 import { capture } from "@/lib/posthog";
 import Spinner from "@/components/ui/Spinner";
+import ConsentCheckbox from "@/components/ui/ConsentCheckbox";
 
 const FEATURES: { label: string; free: string; brewPlus: string }[] = [
   { label: "Recipe logs", free: "Up to 10 (manual only)", brewPlus: "Unlimited" },
@@ -25,6 +26,7 @@ export default function PricingPage() {
   // "Manage subscription" and the flow becomes circular.
   const [hasRealSubscription, setHasRealSubscription] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<PlanId | null>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
 
   // Entitlement is only known client-side (fetched after mount from
   // Supabase), so the very first paint must render identically on the
@@ -70,7 +72,7 @@ export default function PricingPage() {
       const res = await fetch("/api/create-subscription-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId }),
+        body: JSON.stringify({ plan: planId, consent: consentChecked }),
       });
       const { url, error } = await res.json();
       if (error) throw new Error(error);
@@ -120,6 +122,16 @@ export default function PricingPage() {
             Manage subscription →
           </Link>
         </div>
+      )}
+
+      {/* Consent checkbox — only relevant when choosing a new plan takes you
+          into checkout; a real subscriber only sees "Switch plan" (Customer
+          Portal) or "Your current plan" below, neither of which starts a new
+          checkout session. Gated the same way as those buttons themselves,
+          via `mounted && hasRealSubscription`, so it never flips visibility
+          before/after hydration. */}
+      {!(mounted && hasRealSubscription) && (
+        <ConsentCheckbox checked={consentChecked} onChange={setConsentChecked} />
       )}
 
       {/* Plan rows */}
@@ -174,7 +186,7 @@ export default function PricingPage() {
             ) : (
               <button
                 onClick={() => handleChoosePlan(plan.id)}
-                disabled={!mounted || checkingAuth || purchasing !== null}
+                disabled={!mounted || checkingAuth || purchasing !== null || !consentChecked}
                 className="font-heading bg-terracotta text-white font-bold uppercase tracking-wide py-3 px-6 hover:bg-[#dd2b0f] disabled:opacity-50 transition-colors inline-flex items-center justify-center gap-2 shrink-0"
               >
                 {purchasing === plan.id && <Spinner />}

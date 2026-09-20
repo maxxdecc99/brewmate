@@ -274,6 +274,18 @@ function Waitlist() {
           >
             Instagram @getyourbrew →
           </a>
+          <Link
+            href="/legal/terms-of-service"
+            className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-ink hover:opacity-70"
+          >
+            Terms
+          </Link>
+          <Link
+            href="/legal/privacy-policy"
+            className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-ink hover:opacity-70"
+          >
+            Privacy
+          </Link>
           <span className="font-heading text-[10px] font-bold uppercase tracking-[.2em] text-muted">
             Email only · Unsubscribe anytime
           </span>

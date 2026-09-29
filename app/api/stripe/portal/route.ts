@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 
 export async function POST() {
   const supabase = await createClient();
@@ -20,6 +21,22 @@ export async function POST() {
 
   if (!profile?.stripe_customer_id) {
     return NextResponse.json({ error: "no_subscription" }, { status: 400 });
+  }
+
+  // A stored customer_id can be stale — e.g. created while Stripe was in
+  // test mode, so it doesn't exist under the live secret key. There's no
+  // subscription to manage for a customer that doesn't exist, so treat this
+  // the same as never having had a customer_id: clear it and report
+  // no_subscription rather than letting portal session creation fail.
+  try {
+    await stripe.customers.retrieve(profile.stripe_customer_id);
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeInvalidRequestError && err.code === "resource_missing") {
+      const service = await createServiceClient();
+      await service.from("profiles").update({ stripe_customer_id: null }).eq("id", user.id);
+      return NextResponse.json({ error: "no_subscription" }, { status: 400 });
+    }
+    throw err;
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

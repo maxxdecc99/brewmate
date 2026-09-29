@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { stripe, PLAN_PRICE_IDS } from "@/lib/stripe";
 import type { PlanId } from "@/lib/subscriptionPlans";
 import { CONSENT_TEXT, CONSENT_VERSION } from "@/lib/consent";
@@ -54,6 +55,21 @@ export async function POST(req: NextRequest) {
     .single();
 
   let customerId = profile?.stripe_customer_id ?? null;
+
+  // A stored customer_id can be stale — e.g. created while Stripe was in
+  // test mode, so it doesn't exist under the live secret key. Verify it
+  // before reusing it rather than letting checkout session creation fail.
+  if (customerId) {
+    try {
+      await stripe.customers.retrieve(customerId);
+    } catch (err) {
+      if (err instanceof Stripe.errors.StripeInvalidRequestError && err.code === "resource_missing") {
+        customerId = null;
+      } else {
+        throw err;
+      }
+    }
+  }
 
   if (!customerId) {
     const customer = await stripe.customers.create({

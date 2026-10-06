@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
 
   // The checkbox on /pricing and UpgradePrompt already disables the button
   // until this is checked, but that's UI-only — this route is what actually
-  // starts a paid subscription with the 14-day withdrawal right waived, so
-  // enforce it server-side too rather than trusting the client.
+  // starts a paid subscription, so enforce ToS/Privacy acceptance
+  // server-side too rather than trusting the client.
   if (consent !== true) {
     return NextResponse.json({ error: "Consent required" }, { status: 400 });
   }

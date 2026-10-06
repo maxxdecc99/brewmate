@@ -1,61 +1,81 @@
 # GetYourBrew — AI Coffee Recipe Assistant
 
-MVP web app. Generate precise coffee recipes based on beans, brew method and gear.
+Web app that generates precise coffee recipes from your beans, brew method and gear, with a brew timer and a personal brew log. Live at https://getyourbrew.com (also getyourbrew.nl).
 
 ## Stack
-- Next.js 16 (App Router) + TypeScript
-- Tailwind CSS
-- Anthropic API (claude-sonnet-4-6)
-- localStorage for brew log (MVP — upgrade to Supabase later)
-- Vercel deployment
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS 4
+- Anthropic API (`claude-sonnet-4-6`) for recipe generation
+- Supabase: auth (email/password, password reset) and Postgres with RLS (profiles, recipes, checkout_consents, waitlist)
+- Stripe: Brew+ subscriptions (monthly, 6-month, annual) via Checkout, Customer Portal and webhook
+- Resend: SMTP for Supabase auth emails (sender domain getyourbrew.com)
+- Sentry for errors, PostHog for product analytics
+- Vercel hosting (project `brewmate`); pushes to `main` can deploy to production automatically
 
 ## Setup
 
-1. Add your Anthropic API key to `.env.local`:
+1. Create `.env.local` with:
    ```
-   ANTHROPIC_API_KEY=your_key_here
+   ANTHROPIC_API_KEY=
+   NEXT_PUBLIC_SUPABASE_URL=
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=
+   SUPABASE_SERVICE_ROLE_KEY=        # server-only, never NEXT_PUBLIC_
+   STRIPE_SECRET_KEY=
+   STRIPE_WEBHOOK_SECRET=
+   STRIPE_PRICE_MONTHLY=
+   STRIPE_PRICE_SEMIANNUAL=
+   STRIPE_PRICE_ANNUAL=
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   NEXT_PUBLIC_POSTHOG_KEY=
+   NEXT_PUBLIC_POSTHOG_HOST=
+   NEXT_PUBLIC_SENTRY_DSN=
+   SENTRY_DSN=
    ```
+   Or pull them from Vercel with `vercel env pull .env.local`.
 2. `npm install`
 3. `npm run dev`
+
+Database changes live in `supabase/migrations/`.
 
 ## Structure
 
 ```
 app/
-  page.tsx              # Landing / Home
-  generate/page.tsx     # Recipe form + result view
-  log/page.tsx          # Brew log overview
-  log/[id]/page.tsx     # Saved recipe detail
-  api/generate-recipe/  # AI API route
+  page.tsx                      # Home
+  generate/                     # Recipe form + AI result (Brew+)
+  brew/timer/                   # Step-by-step brew timer, post-brew rating
+  log/                          # Brew log, recipe detail, manual recipes (log/add, log/manual/[id])
+  pricing/                      # Brew+ plans + checkout consent
+  account/, settings/           # Account, subscription management (Customer Portal)
+  admin/                        # Admin overview + subscription adjuster (is_admin only)
+  auth/                         # login, register, forgot/reset password, callback (code + token_hash)
+  legal/                        # Terms of Service, Privacy Policy, Refund Policy
+  api/
+    generate-recipe/            # Anthropic call
+    create-subscription-checkout/  # Records consent, creates Stripe Checkout session
+    stripe/portal/              # Stripe Customer Portal session
+    webhooks/stripe/            # Subscription lifecycle → profiles
+    admin/adjust-subscription/  # Admin grant/revoke Brew+
+    delete-account/, waitlist/
 
 lib/
-  prompts/
-    index.ts            # Route to correct prompt builder
-    pourover.ts         # V60, Kalita, Chemex
-    espresso.ts         # Espresso
-    aeropress.ts        # AeroPress
-    frenchpress.ts      # French Press
-    utils.ts            # Shared: roast normalization, temp, grind notes
-  brewLog.ts            # localStorage CRUD
+  prompts/                      # Prompt builders per brew method (pourover, espresso, aeropress, frenchpress)
+  supabase/                     # client.ts (browser), server.ts (cookie client + service-role client)
+  recipes.ts                    # Recipe CRUD against Supabase
+  stripe.ts, subscriptionPlans.ts  # Stripe client, plan → price ID mapping
+  consent.ts                    # Checkout consent text + version
+  posthog.ts, posthog-server.ts, passwordValidation.ts
 
-components/ui/
-  Navbar.tsx
-  RecipeCard.tsx        # Metric display card
-  StarRating.tsx
-
-types/index.ts          # All TypeScript interfaces
+components/ui/                  # Navbar, MobileTabBar, UpgradePrompt, ConsentCheckbox, RecipeCard, StarRating, …
+middleware.ts                   # Session refresh, protected routes, auth-code forwarding
+types/index.ts                  # Shared TypeScript types
 ```
 
-## MVP Roadmap
-- [x] Recipe form (all fields)
-- [x] AI recipe generation (structured JSON)
-- [x] Recipe result display (cards + steps)
-- [x] Save to brew log
-- [x] Brew log overview
-- [x] Recipe detail page with editable rating/notes
+## Plans
+- **Free:** up to 10 manual recipe logs, no AI generation.
+- **Brew+:** unlimited AI recipes and logs. €3.99/month, €14.94 per 6 months or €23.88/year. 14-day EU right of withdrawal applies.
 
-## Next Steps (post-MVP)
-- Supabase for persistent storage + user accounts
+## Next steps
 - Coffee bag scanning (camera → OCR → autofill)
 - Recipe improvement from ratings
 - Mobile / iOS app

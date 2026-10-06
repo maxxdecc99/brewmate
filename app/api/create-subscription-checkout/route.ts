@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
   const priceId = PLAN_PRICE_IDS[plan as PlanId];
 
   if (!priceId) {
+    // Also hit when the STRIPE_PRICE_* env var for a valid plan is missing.
+    console.error("create-subscription-checkout: no price id for plan", { plan });
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
 
@@ -45,14 +47,25 @@ export async function POST(req: NextRequest) {
   });
 
   if (consentError) {
+    console.error("create-subscription-checkout: consent insert failed", {
+      code: consentError.code,
+      message: consentError.message,
+    });
     return NextResponse.json({ error: "Could not record consent" }, { status: 500 });
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("stripe_customer_id")
     .eq("id", user.id)
     .single();
+
+  if (profileError) {
+    console.error("create-subscription-checkout: profile lookup failed", {
+      code: profileError.code,
+      message: profileError.message,
+    });
+  }
 
   let customerId = profile?.stripe_customer_id ?? null;
 
@@ -80,20 +93,47 @@ export async function POST(req: NextRequest) {
 
     // profiles has no UPDATE policy for `authenticated` — must use the
     // service-role client, or this silently updates 0 rows.
-    await service.from("profiles").update({ stripe_customer_id: customerId }).eq("id", user.id);
+    const { error: updateError } = await service
+      .from("profiles")
+      .update({ stripe_customer_id: customerId })
+      .eq("id", user.id);
+    if (updateError) {
+      console.error("create-subscription-checkout: saving stripe_customer_id failed", {
+        code: updateError.code,
+        message: updateError.message,
+      });
+    }
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    customer: customerId,
-    line_items: [{ price: priceId, quantity: 1 }],
-    subscription_data: { metadata: { user_id: user.id } },
-    metadata: { user_id: user.id },
-    success_url: `${appUrl}/account?success=true`,
-    cancel_url: `${appUrl}/pricing?cancelled=true`,
-  });
+  let session: Stripe.Checkout.Session;
+  try {
+    session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer: customerId,
+      line_items: [{ price: priceId, quantity: 1 }],
+      subscription_data: { metadata: { user_id: user.id } },
+      metadata: { user_id: user.id },
+      success_url: `${appUrl}/account?success=true`,
+      cancel_url: `${appUrl}/pricing?cancelled=true`,
+    });
+  } catch (err) {
+    // e.g. resource_missing when a STRIPE_PRICE_* id belongs to the other
+    // Stripe mode (test vs live) or doesn't exist.
+    console.error("create-subscription-checkout: Stripe session create failed", {
+      plan,
+      type: err instanceof Stripe.errors.StripeError ? err.type : undefined,
+      code: err instanceof Stripe.errors.StripeError ? err.code : undefined,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return NextResponse.json({ error: "Could not start checkout" }, { status: 500 });
+  }
+
+  if (!session.url) {
+    console.error("create-subscription-checkout: Stripe session has no url", { plan });
+    return NextResponse.json({ error: "Could not start checkout" }, { status: 500 });
+  }
 
   return NextResponse.json({ url: session.url });
 }

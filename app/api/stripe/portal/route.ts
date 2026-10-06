@@ -33,7 +33,16 @@ export async function POST() {
   } catch (err) {
     if (err instanceof Stripe.errors.StripeInvalidRequestError && err.code === "resource_missing") {
       const service = await createServiceClient();
-      await service.from("profiles").update({ stripe_customer_id: null }).eq("id", user.id);
+      const { error: updateError } = await service
+        .from("profiles")
+        .update({ stripe_customer_id: null })
+        .eq("id", user.id);
+      if (updateError) {
+        console.error("stripe/portal: clearing stale stripe_customer_id failed", {
+          code: updateError.code,
+          message: updateError.message,
+        });
+      }
       return NextResponse.json({ error: "no_subscription" }, { status: 400 });
     }
     throw err;

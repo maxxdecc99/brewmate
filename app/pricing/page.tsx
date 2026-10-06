@@ -27,6 +27,7 @@ export default function PricingPage() {
   const [hasRealSubscription, setHasRealSubscription] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<PlanId | null>(null);
   const [consentChecked, setConsentChecked] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   // Entitlement is only known client-side (fetched after mount from
   // Supabase), so the very first paint must render identically on the
@@ -76,17 +77,19 @@ export default function PricingPage() {
       return;
     }
     setPurchasing(planId);
+    setCheckoutError(null);
     try {
       const res = await fetch("/api/create-subscription-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan: planId, consent: consentChecked }),
       });
-      const { url, error } = await res.json();
-      if (error) throw new Error(error);
+      const { url, error } = await res.json().catch(() => ({}));
+      if (!res.ok || error || !url) throw new Error(error ?? `Checkout failed (${res.status})`);
       window.location.href = url;
     } catch (err) {
       console.error(err);
+      setCheckoutError("Something went wrong, please try again.");
       setPurchasing(null);
     }
   }
@@ -140,6 +143,12 @@ export default function PricingPage() {
           before/after hydration. */}
       {!(mounted && hasRealSubscription) && !showLoggedOutCTA && (
         <ConsentCheckbox checked={consentChecked} onChange={setConsentChecked} />
+      )}
+
+      {checkoutError && (
+        <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
+          {checkoutError}
+        </div>
       )}
 
       {/* Plan rows */}

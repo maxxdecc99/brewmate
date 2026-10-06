@@ -14,40 +14,34 @@ export default function ConsentCheckbox({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="flex items-start gap-3 text-sm text-muted font-medium cursor-pointer">
-        <input
-          type="checkbox"
-          checked={checked}
-          onChange={(e) => onChange(e.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 accent-terracotta cursor-pointer"
-        />
-        <span>
-          I agree to the{" "}
-          <Link
-            href="/legal/terms-of-service"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-ink underline hover:text-terracotta"
-          >
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link
-            href="/legal/privacy-policy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-ink underline hover:text-terracotta"
-          >
-            Privacy Policy
-          </Link>
-          .
-        </span>
-      </label>
-      {/* pl-7 = checkbox width (w-4) + gap-3, so this lines up with the label text */}
-      <p className="pl-7 text-xs text-muted font-medium">
-        Not happy? Email us within 14 days for a full refund.
-      </p>
-    </div>
+    <label className="flex items-start gap-3 text-sm text-muted font-medium cursor-pointer">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-terracotta cursor-pointer"
+      />
+      <span>
+        I agree to the{" "}
+        <Link
+          href="/legal/terms-of-service"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-ink underline hover:text-terracotta"
+        >
+          Terms of Service
+        </Link>{" "}
+        and{" "}
+        <Link
+          href="/legal/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-ink underline hover:text-terracotta"
+        >
+          Privacy Policy
+        </Link>
+        .
+      </span>
+    </label>
   );
 }

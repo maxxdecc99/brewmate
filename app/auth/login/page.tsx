@@ -11,6 +11,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/generate";
+  const linkError = searchParams.get("error") === "auth_error";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,6 +70,18 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      {linkError && (
+        <div className="border-2 border-terracotta px-4 py-3 text-terracotta text-sm font-bold">
+          That link is invalid or has expired.{" "}
+          <Link
+            href="/auth/forgot-password"
+            className="underline underline-offset-2 hover:text-ink"
+          >
+            Request a new one.
+          </Link>
+        </div>
+      )}
+
       <div>
         <Label>Email</Label>
         <Input
